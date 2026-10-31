@@ -195,7 +195,7 @@ const GENERO_LABEL = { scifi:"Ficção científica", fantasia:"Fantasia", suspen
   superheroi:"Super-herói", psicologico:"Psicológico" };
 function generoTagsHTML(g, publico){
   const toks = [...generoTokens(g)];
-  if(!toks.length) return g || "";
+  if(!toks.length) return esc(g || "");
   if(publico) return toks.map(t=> GENERO_LABEL[t]).join(" · ");
   return `<span class="gtxt">${toks.map(t=> GENERO_LABEL[t]).join(" · ")}</span>`;
 }
@@ -275,22 +275,22 @@ function render(){
 function cardHTML(s, publico){
   const prog = (!publico && s.tipo !== "Filme" && (s.temporada || s.episodio)) ? (s.episodio ? `▶ T${s.temporada||1} · E${s.episodio}` : `▶ T${s.temporada}`) : "";
   const posterStyle = s.imagem
-    ? `background:linear-gradient(180deg, rgba(20,21,26,.25) 0%, rgba(20,21,26,.95) 85%), url('${s.imagem}') center/cover no-repeat; opacity:1`
+    ? `background:linear-gradient(180deg, rgba(20,21,26,.25) 0%, rgba(20,21,26,.95) 85%), url('${esc(s.imagem)}') center/cover no-repeat; opacity:1`
     : `background:${posterGradient(s.titulo)}; opacity:.16`;
   return `
     <div class="poster" style="${posterStyle}"></div>
     ${(s.nota !== null && s.nota !== undefined) ? `<span class="status-tag" style="left:14px;right:auto;background:#2a2410;color:#e8c33d">⭐ ${Number(s.nota).toFixed(1)}</span>` : ""}
     ${publico ? `<span class="status-tag st-quero">${s.tipo || "Série"}</span>` : `<span class="status-tag ${statusClass(s.status)}">${statusLabel(s.status)}</span>`}
-    <div class="titulo">${s.titulo}${s.ano ? ` <span class="ano">${s.ano}</span>` : ""}</div>
+    <div class="titulo">${esc(s.titulo)}${s.ano ? ` <span class="ano">${esc(s.ano)}</span>` : ""}</div>
     <div class="genero">${generoTagsHTML(s.genero, publico)}</div>
-    <div class="vibe">${s.vibe||""}</div>
+    <div class="vibe">${esc(s.vibe)}</div>
     ${!publico && s.minhaNota ? `<div class="minha-nota" aria-label="Sua nota: ${s.minhaNota} de 5">${"★".repeat(s.minhaNota)}<span>${"★".repeat(5 - s.minhaNota)}</span></div>` : ""}
     ${!publico && typeof seloNovidade === "function" ? seloNovidade(s) : ""}
     ${publico && cargaKey(s.carga) ? `<span class="carga-pub ${cargaKey(s.carga)}">${cargaEmoji(s.carga)} · ${({ baixa:"bom pra ver cansado", media:"pede alguma atenção", alta:"melhor com energia" })[cargaKey(s.carga)]}</span>` : ""}
-    ${publico && s.resumo ? `<div class="resumo">${s.resumo}</div>` : ""}
-    ${!publico && s.indicadoPor ? `<div class="vibe" style="opacity:.7">💬 indicação de ${s.indicadoPor}</div>` : ""}
+    ${publico && s.resumo ? `<div class="resumo">${esc(s.resumo)}</div>` : ""}
+    ${!publico && s.indicadoPor ? `<div class="vibe" style="opacity:.7">💬 indicação de ${esc(s.indicadoPor)}</div>` : ""}
     <div class="meta">
-      <div class="streams">${(s.streaming||[]).map(x=>`<span>${x}</span>`).join("")}</div>
+      <div class="streams">${(s.streaming||[]).map(x=>`<span>${esc(x)}</span>`).join("")}</div>
       <div style="text-align:right">
         ${publico ? "" : `<div class="carga">${cargaEmoji(s.carga)}</div>`}
         ${prog ? `<div class="prog">${prog}</div>` : ""}
@@ -634,7 +634,7 @@ function renderPicker(query){
   container.innerHTML = filtered.map(s=>`
     <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--bg);cursor:pointer">
       <input type="checkbox" data-id="${s.id}" ${list.showIds.includes(s.id) ? 'checked' : ''}>
-      <span>${s.titulo}</span>
+      <span>${esc(s.titulo)}</span>
     </label>
   `).join("") || `<div style="color:var(--text-dim);font-size:13px;padding:10px 0">Nenhum título encontrado</div>`;
 }
@@ -1167,8 +1167,8 @@ function showDup(d){
   const bar = document.getElementById('dupBar');
   if(!d){ bar.style.display = "none"; bar.innerHTML = ""; return; }
   const prog = (d.tipo !== "Filme" && (d.temporada || d.episodio)) ? `, T${d.temporada||0} · E${d.episodio||0}` : "";
-  bar.innerHTML = `<span class="dp" style="background-image:${d.imagem ? `url('${d.imagem}')` : posterGradient(d.titulo)}"></span>
-    <div><b>Você já tem "${d.titulo}"</b><br>Está como "${statusLabel(d.status)}"${prog}.
+  bar.innerHTML = `<span class="dp" style="background-image:${d.imagem ? `url('${esc(d.imagem)}')` : posterGradient(d.titulo)}"></span>
+    <div><b>Você já tem "${esc(d.titulo)}"</b><br>Está como "${statusLabel(d.status)}"${prog}.
     <div class="acts"><button type="button" class="btn btn-primary" id="dupOpen">Abrir o que já existe</button><button type="button" class="btn btn-ghost" id="dupForce">Adicionar mesmo assim</button></div></div>`;
   bar.style.display = "flex";
   document.getElementById('dupOpen').onclick = ()=>{ closeModal(); openModal(d); };
@@ -1237,7 +1237,7 @@ function aplicarDados(d, soVazios){
 
 function renderResults(container, results, onPick, avisarExistente){
   const ja = r => avisarExistente ? shows.find(s=> (s.tmdbId === r.id && s.tmdbMedia === r.media) || norm(s.titulo) === norm(r.nome) || norm(s.titulo) === norm(r.original)) : null;
-  container.innerHTML = results.map((r, i)=> { const e = ja(r); return `<button type="button" class="lk" data-i="${i}">${r.thumb ? `<img src="${r.thumb}" alt="" loading="lazy">` : `<span class="noimg"></span>`}<span><b>${r.nome}</b><small>${r.anime ? "Anime" : r.media === "movie" ? "Filme" : "Série"}${r.ano ? ` · ${r.ano}` : ""}${r.original && r.original !== r.nome ? ` · ${r.original}` : ""}</small>${e ? `<span class="ja">✓ Já está no seu catálogo, toque para abrir</span>` : ""}</span></button>`; }).join("");
+  container.innerHTML = results.map((r, i)=> { const e = ja(r); return `<button type="button" class="lk" data-i="${i}">${r.thumb ? `<img src="${esc(r.thumb)}" alt="" loading="lazy">` : `<span class="noimg"></span>`}<span><b>${esc(r.nome)}</b><small>${r.anime ? "Anime" : r.media === "movie" ? "Filme" : "Série"}${r.ano ? ` · ${r.ano}` : ""}${r.original && r.original !== r.nome ? ` · ${esc(r.original)}` : ""}</small>${e ? `<span class="ja">✓ Já está no seu catálogo, toque para abrir</span>` : ""}</span></button>`; }).join("");
   container.querySelectorAll('.lk').forEach(b=> b.onclick = ()=>{
     const r = results[+b.dataset.i]; const e = ja(r);
     if(e){ closeModal(); openModal(e); return; }
@@ -1264,7 +1264,7 @@ async function runLookup(){
     const filtrados = tipo === "Anime" ? res.filter(r=> r.anime).concat(res.filter(r=> !r.anime)) : res;
     if(!filtrados.length){ box.innerHTML = `<div class="note">Nada encontrado. Tente o nome original, em inglês, ou preencha manualmente.</div>`; return; }
     renderResults(box, filtrados, async item=>{
-      box.innerHTML = `<div class="note">Carregando dados de "${item.nome}"…</div>`;
+      box.innerHTML = `<div class="note">Carregando dados de "${esc(item.nome)}"…</div>`;
       try{
         const d = await tmdbDetails(item);
         showLookup(false);
@@ -1296,7 +1296,7 @@ document.getElementById('btnCompleteTmdb').onclick = async ()=>{
   const fechar = ()=>{ box.classList.remove('show'); box.innerHTML = ""; };
   try{
     const res = await tmdbFind(titulo, tipo);
-    if(!res.length){ box.innerHTML = `<div class="tmdb-note">Não encontrei "${titulo}". Tente o nome original, em inglês.</div>`; return; }
+    if(!res.length){ box.innerHTML = `<div class="tmdb-note">Não encontrei "${esc(titulo)}". Tente o nome original, em inglês.</div>`; return; }
     box.innerHTML = `<div class="tmdb-note" style="display:flex">Qual destes é o título certo?<button type="button" class="linkbtn" style="margin-left:auto">Cancelar</button></div><div class="lookup-res" style="grid-column:1/-1"></div>`;
     box.querySelector('.tmdb-note .linkbtn').onclick = fechar;
     renderResults(box.querySelector('.lookup-res'), res, async item=>{
@@ -1322,8 +1322,8 @@ document.getElementById('btnFindCover').onclick = async ()=>{
   const tipo = document.querySelector('#chipTipo .chip.on')?.dataset.v || "";
   try{
     const res = (await tmdbFind(titulo, tipo)).filter(r=> r.poster);
-    if(!res.length){ box.innerHTML = `<div class="tmdb-note">Nada encontrado para "${titulo}". Tente o nome original, em inglês.</div>`; return; }
-    box.innerHTML = `<div class="tmdb-note">Escolha a capa certa:</div>` + res.map((r,i)=>`<button type="button" data-i="${i}"><img src="${r.thumb}" alt="" loading="lazy"><span>${r.nome}${r.ano ? ` (${r.ano})` : ""}</span></button>`).join("");
+    if(!res.length){ box.innerHTML = `<div class="tmdb-note">Nada encontrado para "${esc(titulo)}". Tente o nome original, em inglês.</div>`; return; }
+    box.innerHTML = `<div class="tmdb-note">Escolha a capa certa:</div>` + res.map((r,i)=>`<button type="button" data-i="${i}"><img src="${esc(r.thumb)}" alt="" loading="lazy"><span>${esc(r.nome)}${r.ano ? ` (${esc(r.ano)})` : ""}</span></button>`).join("");
     box.querySelectorAll('button[data-i]').forEach(b=> b.onclick = ()=>{
       pendingImage = res[+b.dataset.i].poster;
       setCoverPreview(pendingImage, true);
@@ -1545,7 +1545,7 @@ async function renderPublicCta(l, n, donoNome){
     const { data: c } = await sbPublico.rpc('check_invite', { p_codigo: P_CONVITE });
     if(c && c.valido){
       box.className = "pub-cta inv";
-      box.innerHTML = `<b class="h">${c.nome}, você foi convidado 🎟️</b><p>Crie sua watchlist e comece com ${n ? `estes ${plural(n, "título", "títulos")}` : "o pé direito"}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite de uso único.</small>`;
+      box.innerHTML = `<b class="h">${esc(c.nome)}, você foi convidado 🎟️</b><p>Crie sua watchlist e comece com ${n ? `estes ${plural(n, "título", "títulos")}` : "o pé direito"}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite de uso único.</small>`;
       box.style.display = "block"; return;
     }
   }
