@@ -534,8 +534,8 @@ body:not([data-tab="amigos"]) .tab-amigos{ display:none !important; }
 .am-pessoa{ text-align:center; }
 .am-pessoa .am-av{ width:64px; height:64px; border-radius:50%; object-fit:cover; display:grid; place-items:center; margin:4px auto 10px; background:var(--surface); font-size:24px; font-weight:700; }
 
-/* ---------- 27/10: espaço para o selo do Netlify no canto inferior direito ---------- */
-:root{ --selo:56px; }
+/* ---------- 27/10: espaço para o selo do Netlify. Zerado em 31/10: no GitHub Pages não há selo ---------- */
+:root{ --selo:0px; }
 .modal:not(.dlg) .modal-actions{ padding-bottom:calc(22px + var(--selo)); }
 @media (max-width:640px){
   #btnAdd{ bottom:calc(76px + 8px); }
