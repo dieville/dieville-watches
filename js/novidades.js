@@ -44,14 +44,14 @@ const retornoNovo = ()=> novRetorno.filter(r=> !profile?.retorno_visto_em || r.c
 
 /* ---------- faixa no catálogo ---------- */
 function itensFaixa(){
-  const fechada = lerLS('dw-nov-fechada', null);
+  const fechada = null; // a faixa não fecha mais: só recolhe ou expande
   const vistas = new Set(lerLS('dw-temp-vistas', []));
   const semana = new Date(Date.now() - 7 * 864e5).toISOString();
   const temps = novTemporadas.filter(t=> !vistas.has(t.chave)).map(t=> ({ k:"tv", ord: t.urg, t }));
   const am = novFeed.filter(a=> a.created_at > semana && (!fechada || a.created_at > fechada)).slice(0, 8).map(a=> ({ k:"am", ord: 10, d: a.created_at, a }));
   const ret = retornoNovo().filter(r=> !fechada || r.created_at > fechada).slice(0, 3).map(r=> ({ k:"ret", ord: 5, d: r.created_at, r }));
   const duv = Object.keys(lerLS('dw-vinc-duvida', {})).filter(id=> shows.some(x=> x.id === id && !x.tmdbId)).length;
-  const vinc = duv && !lerLS('dw-vinc-faixa-fechada', false) ? [{ k:"vinc", ord: 8, n: duv }] : [];
+  const vinc = duv ? [{ k:"vinc", ord: 8, n: duv }] : [];
   return [...temps, ...ret, ...vinc, ...am].sort((x, y)=> x.ord - y.ord || (y.d || "").localeCompare(x.d || ""));
 }
 function cartaoFaixa(it){
@@ -86,18 +86,11 @@ function renderFaixa(){
   el.style.display = "";
   const d0 = itens[0];
   const dest = d0.k === "tv" ? `${d0.t.titulo} ${d0.t.selo.replace("📺 ", "")}` : d0.k === "am" ? `${(d0.a.nome || "").split(" ")[0]} ${d0.a.tipo === "concluiu" ? "terminou" : d0.a.tipo === "lista" ? "publicou uma lista" : "começou"} ${d0.a.titulo || ""}` : d0.k === "vinc" ? "confira seus títulos" : "alguém reagiu ao que é seu";
-  el.innerHTML = `<div class="nf-h"><b>Novidades · ${itens.length} <span class="nf-dest">· ${esc(dest)}</span></b><button type="button" class="linkbtn nf-toggle" id="btnNovToggle" aria-expanded="${el.classList.contains('aberta')}">${el.classList.contains('aberta') ? "Menos" : "Ver"}</button><button type="button" class="linkbtn" id="btnNovVerTudo">Ver tudo</button>
-    <button type="button" class="nf-x" id="btnNovFechar" aria-label="Fechar novidades">✕</button></div>
+  const aberta = el.classList.contains('aberta');
+  el.innerHTML = `<div class="nf-h"><div class="nf-tt"><b>Novidades <span class="nf-n">${itens.length}</span> <span class="nf-dest">· ${esc(dest)}</span></b><small class="nf-sub">Episódios novos das suas séries e o que seus amigos andam vendo</small></div><button type="button" class="linkbtn nf-toggle" id="btnNovToggle" aria-expanded="${aberta}">${aberta ? "Recolher ▴" : "Expandir ▾"}</button><button type="button" class="linkbtn" id="btnNovVerTudo">Ver tudo</button></div>
     <div class="nf-cards">${itens.slice(0, 12).map(cartaoFaixa).join("")}</div>`;
-  document.getElementById('btnNovFechar').onclick = ()=>{
-    gravarLS('dw-nov-fechada', new Date().toISOString());
-    gravarLS('dw-vinc-faixa-fechada', true);
-    gravarLS('dw-temp-vistas', [...new Set([...lerLS('dw-temp-vistas', []), ...novTemporadas.map(t=> t.chave)])].slice(-300));
-    renderFaixa();
-    showToast("Novidades escondidas até chegar algo novo");
-  };
   document.getElementById('btnNovVerTudo').onclick = ()=> setTab('amigos');
-  document.getElementById('btnNovToggle').onclick = ()=>{ el.classList.toggle('aberta'); renderFaixa(); };
+  document.getElementById('btnNovToggle').onclick = ()=>{ el.classList.toggle('aberta'); gravarLS('dw-nov-aberta', el.classList.contains('aberta')); renderFaixa(); };
 }
 
 /* ---------- aba Amigos ---------- */

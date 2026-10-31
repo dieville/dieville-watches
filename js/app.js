@@ -3,7 +3,7 @@ let shows = [];
 let lists = [];
 let viewingListId = null;
 let editingListId = null;
-let filters = { status:"all", carga:"all", search:"", tipo:"all", genero:"all" };
+let filters = { status:"all", carga:"all", search:"", tipo:"all", genero:"all", onde:"all" };
 
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
@@ -156,6 +156,7 @@ function applyFilters(){
     if(filters.carga==="baixa" && cargaKey(s.carga)!=="baixa") return false;
     if(filters.carga==="media" && !["baixa","media"].includes(cargaKey(s.carga))) return false;
     if(filters.genero!=="all" && !generoTokens(s.genero).has(filters.genero)) return false;
+    if(filters.onde!=="all" && !(s.streaming||[]).includes(filters.onde)) return false;
     if(filters.search){
       const q = filters.search.toLowerCase();
       const hay = `${s.titulo} ${s.genero} ${s.vibe}`.toLowerCase();
@@ -299,9 +300,18 @@ function cardHTML(s, publico){
   `;
 }
 
+/* Ícones de energia em SVG: mesma forma e cor em qualquer aparelho (os emojis perdiam a cor na TV) */
+const ICONE_ENERGIA = {
+  baixa:'<path d="M20 4C10 4 5 9 5 15v5h3c6 0 11-5 12-16z"/><path d="M5 20 14 11"/>',
+  media:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/>',
+  alta:'<path d="M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-9z"/>'
+};
+function iconeEnergia(k){
+  return ICONE_ENERGIA[k] ? `<svg class="ei ${k}" viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONE_ENERGIA[k]}</svg>` : "";
+}
 function cargaEmoji(c){
   const k = cargaKey(c);
-  return k==="baixa" ? "🪶 Leve" : k==="media" ? "🎯 Médio" : k==="alta" ? "🔥 Pede foco" : "sem carga";
+  return k==="baixa" ? `${iconeEnergia(k)} Leve` : k==="media" ? `${iconeEnergia(k)} Médio` : k==="alta" ? `${iconeEnergia(k)} Pede foco` : "sem carga";
 }
 
 /* ---------- filters wiring ---------- */
@@ -363,10 +373,10 @@ btnAccount.onclick = e=>{ e.stopPropagation(); const o = acctMenu.classList.togg
 document.addEventListener('click', e=>{ if(!acctMenu.contains(e.target)){ acctMenu.classList.remove('open'); btnAccount.setAttribute('aria-expanded', false); } });
 
 function filtrosAtivos(){
-  return filters.status!=="all" || filters.tipo!=="all" || filters.carga!=="all" || filters.genero!=="all" || !!filters.search;
+  return filters.status!=="all" || filters.tipo!=="all" || filters.carga!=="all" || filters.genero!=="all" || filters.onde!=="all" || !!filters.search;
 }
 function resetFilters(){
-  filters = { status:"all", carga:"all", search:"", tipo:"all", genero:"all" };
+  filters = { status:"all", carga:"all", search:"", tipo:"all", genero:"all", onde:"all" };
   document.querySelectorAll('.pill[data-status]').forEach(b=>b.classList.toggle('active', b.dataset.status==="all"));
   document.querySelectorAll('.pill[data-tipo]').forEach(b=>b.classList.toggle('active', b.dataset.tipo==="all"));
   document.querySelectorAll('.dial button').forEach(b=>b.classList.toggle('active', b.dataset.c==="all"));
@@ -617,14 +627,22 @@ document.getElementById('btnClearListView').onclick = ()=>{
 };
 
 /* ---------- seletor de séries para uma lista ---------- */
+// A seleção fica num rascunho: a lista só muda quando a pessoa toca em Salvar
+let pickerSel = new Set();
 function openPicker(list){
   editingListId = list.id;
+  pickerSel = new Set(list.showIds);
   document.getElementById('pickerTitle').textContent = `Editar: ${list.nome}`;
   document.getElementById('pickerSearch').value = "";
   renderPicker("");
+  atualizarPickerN();
   document.getElementById('pickerOverlay').classList.add('open');
+  setTimeout(()=> document.getElementById('pickerSearch').focus(), 50);
 }
-
+function fecharPicker(){ document.getElementById('pickerOverlay').classList.remove('open'); }
+function atualizarPickerN(){
+  document.getElementById('pickerCount').textContent = plural(pickerSel.size, "título selecionado", "títulos selecionados");
+}
 function renderPicker(query){
   const list = lists.find(l=>l.id===editingListId);
   if(!list) return;
@@ -632,9 +650,11 @@ function renderPicker(query){
   const filtered = shows.filter(s=> !q || s.titulo.toLowerCase().includes(q));
   const container = document.getElementById('pickerList');
   container.innerHTML = filtered.map(s=>`
-    <label style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--bg);cursor:pointer">
-      <input type="checkbox" data-id="${s.id}" ${list.showIds.includes(s.id) ? 'checked' : ''}>
-      <span>${esc(s.titulo)}</span>
+    <label class="pk-row">
+      <input type="checkbox" data-id="${s.id}" ${pickerSel.has(s.id) ? 'checked' : ''}>
+      <i class="pk-box" aria-hidden="true"></i>
+      <span class="pk-po" style="${s.imagem ? `background-image:url('${esc(s.imagem)}')` : `background:${posterGradient(s.titulo)}`}"></span>
+      <span class="pk-t"><b>${esc(s.titulo)}</b><small>${esc([s.tipo || "Série", s.ano].filter(Boolean).join(" · "))}</small></span>
     </label>
   `).join("") || `<div style="color:var(--text-dim);font-size:13px;padding:10px 0">Nenhum título encontrado</div>`;
 }
@@ -644,24 +664,25 @@ document.getElementById('pickerSearch').addEventListener('input', e=> renderPick
 document.getElementById('pickerList').addEventListener('change', e=>{
   const cb = e.target.closest('input[type=checkbox]');
   if(!cb) return;
-  const list = lists.find(l=>l.id===editingListId);
-  if(!list) return;
-  const showId = cb.dataset.id;
-  if(cb.checked){
-    if(!list.showIds.includes(showId)) list.showIds.push(showId);
-  }else{
-    list.showIds = list.showIds.filter(x=>x!==showId);
-  }
+  if(cb.checked) pickerSel.add(cb.dataset.id); else pickerSel.delete(cb.dataset.id);
+  atualizarPickerN();
 });
 
 document.getElementById('btnPickerDone').onclick = async ()=>{
   const list = lists.find(l=>l.id===editingListId);
-  if(list && !(await saveListIds(list))) return;
-  document.getElementById('pickerOverlay').classList.remove('open');
+  if(list){
+    const antes = list.showIds;
+    list.showIds = [...pickerSel];
+    if(!(await saveListIds(list))){ list.showIds = antes; return; }
+  }
+  fecharPicker();
   renderLists();
   showToast("Lista atualizada");
 };
-document.getElementById('pickerOverlay').addEventListener('click', e=>{ if(e.target.id==='pickerOverlay') e.target.classList.remove('open'); });
+document.getElementById('btnPickerCancel').onclick = fecharPicker;
+document.getElementById('btnPickerX').onclick = fecharPicker;
+document.getElementById('pickerOverlay').addEventListener('click', e=>{ if(e.target.id==='pickerOverlay') fecharPicker(); });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && document.getElementById('pickerOverlay').classList.contains('open')) fecharPicker(); });
 
 /* ---------- modal ---------- */
 const overlay = document.getElementById('overlay');

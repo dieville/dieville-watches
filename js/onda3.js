@@ -128,7 +128,7 @@ function escolhePraMim(){
   abrirDialogo({
     titulo: "Escolhe pra mim",
     classe: "epm-dlg",
-    corpo: `<div class="lab" id="epmEn">Sua energia</div><div class="chip-group" role="radiogroup" aria-labelledby="epmEn">${[["baixa","🪶 Cansado"],["media","🎯 Normal"],["alta","🔥 Com foco"]].map(([v, t])=> `<button type="button" class="chip" role="radio" data-en="${v}">${t}</button>`).join("")}</div>
+    corpo: `<div class="lab" id="epmEn">Sua energia</div><div class="chip-group" role="radiogroup" aria-labelledby="epmEn">${[["baixa",`${iconeEnergia("baixa")} Cansado`],["media",`${iconeEnergia("media")} Normal`],["alta",`${iconeEnergia("alta")} Com foco`]].map(([v, t])=> `<button type="button" class="chip" role="radio" data-en="${v}">${t}</button>`).join("")}</div>
       <div class="lab" id="epmTp">Quanto tempo você tem?</div><div class="chip-group" role="radiogroup" aria-labelledby="epmTp">${Object.entries(TEMPO).map(([v, o])=> `<button type="button" class="chip" role="radio" data-t="${v}">${o.txt}</button>`).join("")}</div>
       <div id="epmRes" aria-live="polite"></div>`,
     botoes: [{ texto:"Fechar" }],

@@ -35,12 +35,12 @@ sheetBg.onclick = ()=> abrirFiltros(false);
 document.getElementById('btnSheetVer').onclick = ()=> abrirFiltros(false);
 document.getElementById('btnSheetLimpar').onclick = ()=>{ const c = filters.carga; resetFilters(); filters.carga = c; setEnergia(c); };
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && document.body.classList.contains('filtros-open')) abrirFiltros(false); });
-function nFiltros(){ return ["status","tipo","genero"].filter(k=> filters[k] !== "all").length; }
+function nFiltros(){ return ["tipo","genero","onde"].filter(k=> filters[k] !== "all").length + (["Aguardando Nova Temporada","Abandonei"].includes(filters.status) ? 1 : 0); }
 
 /* ---------- continue de onde parou ---------- */
 function renderContinuar(){
   const box = document.getElementById('continuar');
-  const outros = filters.status !== "all" || filters.tipo !== "all" || filters.genero !== "all" || filters.search || viewingListId;
+  const outros = filters.status !== "all" || filters.tipo !== "all" || filters.genero !== "all" || filters.onde !== "all" || filters.search || viewingListId;
   let itens = shows.filter(s=> s.status === "Assistindo");
   if(filters.carga === "baixa") itens = itens.filter(s=> cargaKey(s.carga) === "baixa");
   if(filters.carga === "media") itens = itens.filter(s=> ["baixa","media"].includes(cargaKey(s.carga)));
