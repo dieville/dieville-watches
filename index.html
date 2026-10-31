@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dieville Watches</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css?v=20261031a">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14151a">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Watches">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body data-mode="boot">
+
+<section class="gate" id="setupGate">
+  <div class="gate-card">
+    <div class="eyebrow"><span class="dot"></span> Falta um passo</div>
+    <h2>Conecte seu Supabase</h2>
+    <p>Abra este arquivo num editor de texto e preencha as duas linhas logo no início do script: <code>SUPABASE_URL</code> e <code>SUPABASE_KEY</code>. Os valores ficam no painel do Supabase, em Project Settings, API Keys.</p>
+  </div>
+</section>
+
+<section class="gate" id="authGate">
+  <div class="gate-card">
+    <div class="eyebrow"><span class="dot"></span> Dieville Watches</div>
+    <h2>Entrar</h2>
+    <p>Sua lista de séries, filmes e animes, organizada pela sua energia do dia. Só para convidados.</p>
+    <button class="btn btn-google" data-google style="width:100%"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continuar com Google</button>
+    <details class="email-login">
+      <summary>Entrar com e-mail e senha</summary>
+      <div class="field"><label for="authEmail">E-mail</label><input type="email" id="authEmail" autocomplete="email"></div>
+      <div class="field"><label for="authPass">Senha</label><input type="password" id="authPass" autocomplete="current-password"></div>
+      <button class="btn btn-primary" id="btnLogin" style="width:100%">Entrar</button>
+    </details>
+    <div class="auth-msg" id="authMsg"></div>
+  </div>
+</section>
+
+<section class="gate" id="requestGate">
+  <div class="gate-card">
+    <div class="eyebrow"><span class="dot"></span> Dieville Watches</div>
+    <h2>Pedir acesso</h2>
+    <p id="reqIntro">O Dieville Watches é só para convidados. Envie seu pedido e o Dieville decide.</p>
+    <p class="mut-sm">Você entrou como <b class="who-email"></b>.</p>
+    <div class="field"><label for="reqMsg">Como você conhece o Dieville? (opcional)</label><textarea id="reqMsg" maxlength="300" placeholder="Ex: sou amigo do Quim, ele me mandou a lista"></textarea></div>
+    <button class="btn btn-primary" id="btnSendRequest" style="width:100%">Enviar pedido</button>
+    <div class="auth-msg" id="reqError"></div>
+    <button class="linkbtn gate-out" data-signout>Sair desta conta</button>
+  </div>
+</section>
+
+<section class="gate" id="pendingGate">
+  <div class="gate-card" style="text-align:center">
+    <div style="font-size:42px">⏳</div>
+    <h2>Pedido enviado</h2>
+    <p>O Dieville vai analisar. Quando ele aprovar, é só voltar aqui e entrar com o mesmo Google.</p>
+    <p class="mut-sm" id="pendingList"></p>
+    <p class="mut-sm">Conta: <b class="who-email"></b></p>
+    <button class="btn btn-ghost" onclick="location.reload()">Verificar de novo</button>
+    <button class="linkbtn gate-out" data-signout>Sair desta conta</button>
+  </div>
+</section>
+
+<section class="gate" id="blockedGate">
+  <div class="gate-card" style="text-align:center">
+    <div style="font-size:42px">🔒</div>
+    <h2>Acesso indisponível</h2>
+    <p>Esta conta não tem acesso ao Dieville Watches no momento.</p>
+    <p class="mut-sm">Conta: <b class="who-email"></b></p>
+    <button class="linkbtn gate-out" data-signout>Sair desta conta</button>
+  </div>
+</section>
+
+<section class="gate" id="publicView">
+  <header class="pub-head">
+    <div>
+      <div class="eyebrow"><span class="dot"></span> Lista compartilhada</div>
+      <h1 id="pubTitle">Carregando…</h1>
+      <div class="sub" id="pubSub"></div>
+    </div>
+    <img id="pubOwner" class="pub-owner" alt="Foto de quem indicou" style="display:none">
+  </header>
+  <div class="pub-cta" id="pubCta" style="display:none"></div>
+  <div class="grid" id="pubGrid"></div>
+  <div class="pub-footer" id="pubFooter">Lista feita no Dieville Watches</div>
+</section>
+
+<div class="topbar app-only">
+  <span class="brand"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)"></span><span class="brand-full"> DIEVILLE WATCHES</span><span class="brand-short" aria-hidden="true">DW</span></span>
+  <nav class="tabs">
+    <button class="on" data-tab="catalogo">Catálogo</button>
+    <button data-tab="listas">Listas</button>
+    <button data-tab="amigos" id="tabAmigos" style="display:none">Amigos <span class="tab-badge" id="amigosBadge" style="display:none"></span></button>
+    <button data-tab="pessoas" id="tabPessoas" style="display:none">Usuários <span class="tab-badge" id="pendBadge" style="display:none"></span></button>
+  </nav>
+  <div class="top-right">
+    <button class="fb-top" id="btnFeedbackTop" aria-label="Enviar sugestão ou erro" title="Enviar sugestão ou erro">💬<span> Feedback</span></button>
+    <button class="add-btn" id="btnAdd" aria-label="Adicionar título"><span class="add-plus" aria-hidden="true">+</span><span class="add-l"> Adicionar</span></button>
+    <button class="avatar" id="btnAccount" title="Conta" aria-label="Menu da conta" aria-haspopup="menu" aria-expanded="false">D</button>
+    <div class="acct-menu" id="acctMenu">
+      <div class="acct-email" id="acctEmail"></div>
+      <button id="btnAvatar">🙂 Trocar minha foto</button>
+      <hr><div class="acct-sec">Ajuda e feedback</div>
+      <button id="btnFeedback">💬 Enviar sugestão ou erro</button>
+      <button id="btnMeusFeedbacks">📬 Meus feedbacks <span class="tab-badge" id="fbRespBadge" style="display:none"></span></button>
+      <button id="btnMelhorias">🚀 O que melhorou</button>
+      <hr><div class="acct-sec">Privacidade</div>
+      <button id="btnCompartilhar" class="acct-sw" role="menuitemcheckbox" aria-checked="true"><span>Amigos veem o que estou assistindo</span><i class="sw" aria-hidden="true"></i><b class="sr-only" id="compartilharTxt">ligado</b></button>
+      <button id="btnSugestoes" class="acct-sw" role="menuitemcheckbox" aria-checked="true"><span>Aparecer em "talvez você conheça"</span><i class="sw" aria-hidden="true"></i><b class="sr-only" id="sugestoesTxt">ligado</b></button>
+      <hr><div class="acct-sec">Seus dados</div>
+      <button id="btnBulkCovers">✨ Completar dados que faltam</button>
+      <button id="btnRevisarCarga">🎯 Revisar quanto cada título pede</button>
+      <button id="btnExport">⬇️ Baixar uma cópia</button>
+      <button id="btnImportTrigger">⬆️ Restaurar uma cópia</button>
+      <hr>
+      <button id="btnSignOut">Sair</button>
+    </div>
+    <input type="file" id="fImportFile" accept="application/json" style="display:none">
+    <input type="file" id="fAvatarFile" accept="image/*" style="display:none">
+  </div>
+</div>
+
+<header class="hero app-only tab-cat">
+  <div class="hero-title">
+    <h1>O que eu vou <em>assistir</em> hoje?</h1>
+    <img class="hero-me" src="img/dieville.webp" alt="" aria-hidden="true">
+  </div>
+  <div class="stats">
+    <button class="stat" data-quick="all"><div class="n" id="statTotal">0</div><div class="l">no catálogo</div></button>
+    <button class="stat" data-quick="Assistindo"><div class="n" id="statAssistindo">0</div><div class="l">assistindo</div></button>
+    <button class="stat" data-quick="Em Pausa"><div class="n" id="statPausa">0</div><div class="l">em pausa</div></button>
+    <button class="stat" data-quick="Quero assistir"><div class="n" id="statFila">0</div><div class="l">na fila</div></button>
+  </div>
+</header>
+
+<section class="energia app-only tab-cat" id="energiaBox" aria-labelledby="energiaQ">
+  <div class="eq" id="energiaQ">Como está sua energia hoje?</div>
+  <div class="eopts" role="radiogroup" aria-labelledby="energiaQ">
+    <button type="button" role="radio" aria-checked="false" data-e="baixa"><b>🪶 Cansado</b><small>só leves</small></button>
+    <button type="button" role="radio" aria-checked="false" data-e="media"><b>🎯 Normal</b><small>leves e médios</small></button>
+    <button type="button" role="radio" aria-checked="false" data-e="alta"><b>🔥 Com foco</b><small>tudo, densos primeiro</small></button>
+  </div>
+  <div class="ehint" id="energiaHint" aria-live="polite"></div>
+</section>
+<div class="poucos-nota app-only tab-cat" id="poucosNota" style="display:none"></div>
+
+<section class="nov-faixa app-only tab-cat" id="novFaixa" aria-label="Novidades" style="display:none"></section>
+
+<div class="filter-box app-only tab-cat">
+  <div class="search-wrap">
+    <span class="s-ic" aria-hidden="true">🔍</span>
+    <input class="search" id="search" type="search" placeholder="Buscar título, gênero, vibe…" aria-label="Buscar" autocomplete="off">
+    <button class="s-clear" id="btnClearSearch" aria-label="Limpar busca">✕</button>
+    <button type="button" class="fbtn-m" id="btnFiltros" aria-expanded="false" aria-controls="filtroSheet">⚙︎ Filtros<span id="filtrosN"></span></button>
+  </div>
+  <div class="sheet-head"><b>Filtros</b><button type="button" class="linkbtn" id="btnSheetLimpar">Limpar</button></div>
+  <div class="frow f-genero">
+    <div class="flabel">Gênero</div>
+    <div class="genre-chips" id="genreChips"></div>
+  </div>
+  <div class="frow f-tipo">
+    <div class="flabel">Tipo</div>
+    <button class="pill active" data-tipo="all">Todos</button>
+    <button class="pill" data-tipo="Série">Série</button>
+    <button class="pill" data-tipo="Anime">Anime</button>
+    <button class="pill" data-tipo="Filme">Filme</button>
+  </div>
+  <div class="frow f-status">
+    <div class="flabel">Status</div>
+    <button class="pill active" data-status="all">Todos</button>
+    <button class="pill" data-status="Assistindo">Assistindo</button>
+    <button class="pill" data-status="Em Pausa">Em pausa</button>
+    <button class="pill" data-status="Quero assistir">Quero assistir</button>
+    <button class="pill" data-status="Aguardando Nova Temporada">Aguardando temporada</button>
+    <button class="pill" data-status="Concluída">Concluído</button>
+    <button class="pill" data-status="Abandonei">Abandonei</button>
+  </div>
+  <div class="m-selects">
+    <select id="mGenero" aria-label="Gênero"></select>
+    <select id="mTipo" aria-label="Tipo">
+      <option value="all">Tipo: Todos</option><option value="Série">Série</option><option value="Anime">Anime</option><option value="Filme">Filme</option>
+    </select>
+    <select id="mStatus" aria-label="Status">
+      <option value="all">Status: Todos</option><option value="Assistindo">Assistindo</option><option value="Em Pausa">Em pausa</option><option value="Quero assistir">Quero assistir</option><option value="Aguardando Nova Temporada">Aguardando temporada</option><option value="Concluída">Concluído</option><option value="Abandonei">Abandonei</option>
+    </select>
+  </div>
+  <div class="sheet-foot"><button type="button" class="btn btn-primary" id="btnSheetVer">Ver títulos</button></div>
+</div>
+<div class="sheet-bg" id="sheetBg"></div>
+
+<section class="continuar app-only tab-cat" id="continuar" style="display:none" aria-labelledby="contTit"></section>
+<div class="results app-only tab-cat" id="resultsBar">
+  <span id="resultsText"></span>
+  <button class="linkbtn" id="btnClearFilters" style="display:none">Limpar filtros</button>
+  <div class="sort-wrap">
+    <button class="cta-ctx" id="btnCreateFromFilter" style="display:none">Criar lista com estes →</button>
+    <select class="sort-sel" id="sortSel" aria-label="Ordenar">
+      <option value="proximos">Ordenar: Próximos a assistir</option>
+      <option value="nota">Ordenar: Maior nota</option>
+      <option value="az">Ordenar: A a Z</option>
+      <option value="recentes">Ordenar: Adicionados recentemente</option>
+    </select>
+  </div>
+</div>
+
+<div id="listBanner" class="app-only tab-cat" style="display:none;padding:0 6vw;margin-top:16px">
+  <div style="display:inline-flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--amber);border-radius:999px;padding:8px 16px;font-size:13px">
+    <span id="listBannerText"></span>
+    <button id="btnClearListView" style="background:none;border:none;color:var(--amber);cursor:pointer;font-weight:700">✕ ver tudo</button>
+  </div>
+</div>
+<div class="empty" id="loadingState">
+  <div class="display">Carregando…</div>
+</div>
+<div class="grid app-only tab-cat" id="grid"></div>
+<section class="people-page app-only tab-people">
+  <h2>Usuários</h2>
+  <p id="usrResumo">Só entra quem você aprovar.</p>
+  <div class="subtabs" role="tablist">
+    <button class="on" data-sub="usuarios" role="tab">Usuários</button>
+    <button data-sub="convites" role="tab">Convites</button>
+    <button data-sub="feedback" role="tab">Feedback <span class="tab-badge" id="fbBadge" style="display:none"></span></button>
+  </div>
+  <div class="sub-pane" data-pane="usuarios">
+    <div class="usr-filters" id="usrFilters"></div>
+    <div id="usrList"></div>
+  </div>
+  <div class="sub-pane" data-pane="convites" style="display:none">
+    <div class="invite-form">
+      <div class="field"><label for="invName">Para quem?</label><input type="text" id="invName" placeholder="Nome da pessoa"></div>
+      <div class="field"><label for="invList">Começar com a lista (opcional)</label><select id="invList"></select></div>
+      <button class="btn btn-primary" id="btnCreateInvite">Gerar convite</button>
+      <div id="invResult"></div>
+    </div>
+    <div id="invList2"></div>
+  </div>
+  <div class="sub-pane" data-pane="feedback" style="display:none">
+    <div class="usr-filters" id="fbFilters"></div>
+    <div id="fbList"></div>
+  </div>
+</section>
+
+<section class="people-page app-only tab-amigos">
+  <h2>Amigos</h2>
+  <p>O que seus amigos andam vendo e indicando.</p>
+  <div id="amigosPedidos"></div>
+  <div class="pcard-box">
+    <h3>Adicionar amigos</h3>
+    <div class="am-opcoes">
+      <div class="am-op">
+        <b>🔗 Meu link de amizade</b><small>Para quem já usa o app. Quem abrir o link pode aceitar a amizade na hora.</small>
+        <div class="am-link"><span id="amLinkTxt">…</span><button class="btn btn-primary" id="btnCopiarLinkAmizade" type="button">Copiar</button></div>
+        <button class="linkbtn am-novo" id="btnNovoLinkAmizade" type="button">Gerar um link novo</button>
+      </div>
+      <div class="am-op">
+        <b>✉️ Convidar alguém novo</b><small>Para quem ainda não tem conta. O Dieville aprova a entrada.</small>
+        <button class="btn btn-ghost" id="btnConvidarAmigo" type="button" style="margin-top:10px">Convidar alguém novo</button>
+      </div>
+    </div>
+  </div>
+  <div class="pcard-box" id="amigosSugBox" style="display:none">
+    <h3>Pessoas que você talvez conheça</h3>
+    <div id="amigosSugestoes"></div>
+  </div>
+  <div class="pcard-box">
+    <h3>Novidades dos amigos</h3>
+    <div class="chips-nov" id="novChips" role="tablist"></div>
+    <div id="novRetorno"></div>
+    <div id="amigosFeed"></div>
+  </div>
+  <div class="pcard-box">
+    <h3>Seus amigos</h3>
+    <div id="amigosLista"></div>
+  </div>
+</section>
+
+<section class="lists-page app-only tab-lists">
+  <h2>Listas</h2>
+  <p>Monte listas para indicar, gere um link público ou uma imagem para mandar.</p>
+  <div class="newlist">
+    <input type="text" id="newListName" placeholder="Nome da nova lista (ex: Terror pra Ana)">
+    <button class="btn btn-primary" id="btnCreateList">Criar</button>
+  </div>
+  <div id="listsContainer" style="display:flex;flex-direction:column;gap:10px"></div>
+</section>
+<div class="empty app-only tab-cat" id="firstRunState" style="display:none">
+  <div class="display">Seu catálogo está vazio</div>
+  <div style="margin-bottom:20px">Comece com o catálogo que montamos (séries, animes e filmes) ou restaure um backup que você exportou.</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" id="btnSeedCatalog">Carregar catálogo inicial</button>
+    <button class="btn btn-ghost" id="btnFirstImport">Importar backup (.json)</button>
+  </div>
+  <div id="firstRunFb" style="display:none;margin-top:22px"><span>Primeira impressão do app? </span><button class="linkbtn" id="btnFirstFb">Conte para o Dieville</button></div>
+</div>
+<div class="empty app-only tab-cat" id="emptyState" style="display:none">
+  <div class="display">Nada por aqui</div>
+  <div>Tente outro filtro, ou adicione um título novo.</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Novo título</h2>
+      <button class="icon-btn" id="btnCloseModal" aria-label="Fechar (Esc)">✕</button>
+    </div>
+    <input type="hidden" id="editId">
+    <section id="lookupStep" class="lookup" style="display:none">
+      <div class="search-wrap" style="margin-bottom:10px">
+        <span class="s-ic" aria-hidden="true">🔎</span>
+        <input class="search" id="lookupQ" type="search" placeholder="Digite o nome do título" autocomplete="off" aria-label="Buscar título">
+        <button type="button" class="s-clear" id="btnClearLookup" aria-label="Limpar busca">✕</button>
+      </div>
+      <div class="chip-group" id="lookupTipo" style="margin-bottom:12px">
+        <button type="button" class="chip on" data-v="">Qualquer</button>
+        <button type="button" class="chip" data-v="Série">Série</button>
+        <button type="button" class="chip" data-v="Filme">Filme</button>
+        <button type="button" class="chip" data-v="Anime">Anime</button>
+      </div>
+      <div id="lookupResults" class="lookup-res"></div>
+      <button type="button" class="linkbtn" id="btnManual" style="margin:14px 0 6px">Não achou? Preencher manualmente →</button>
+    </section>
+    <div id="formBody">
+    <div class="dupbar" id="dupBar" style="display:none"></div>
+    <div class="autobar" id="autoBar" style="display:none"><span id="autoBarTxt"></span><button type="button" class="linkbtn" id="btnUndoAuto">Desfazer</button></div>
+    <div class="field"><label for="fTitulo">Título <span class="req">*</span></label><input type="text" id="fTitulo" placeholder="Nome da série, filme ou anime">
+      <button type="button" class="linkbtn" id="btnCompleteTmdb" style="margin-top:8px">✨ Completar com busca inteligente</button>
+      <div class="tmdb-results" id="completeResults"></div>
+    </div>
+    <div class="field">
+      <label>Tipo</label>
+      <div class="chip-group" id="chipTipo">
+        <button type="button" class="chip" data-v="Série">Série</button>
+        <button type="button" class="chip" data-v="Anime">Anime</button>
+        <button type="button" class="chip" data-v="Filme">Filme</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Quanto pede de você? <span class="req">*</span></label>
+      <div class="chip-group" id="chipCarga">
+        <button type="button" class="chip" data-v="Baixa (Fácil digestão)">🪶 Leve</button>
+        <button type="button" class="chip" data-v="Média (Atenção moderada)">🎯 Médio</button>
+        <button type="button" class="chip" data-v="Alta (Foco total)">🔥 Pede foco</button>
+      </div>
+      <div class="hint">Leve: dá pra ver cansado ou mexendo no celular. Pede foco: precisa de atenção total.</div>
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label for="fStatus">Status</label>
+        <select id="fStatus">
+          <option value="Quero assistir">Quero assistir</option>
+          <option value="Assistindo">Assistindo</option>
+          <option value="Em Pausa">Em pausa</option>
+          <option value="Aguardando Nova Temporada" id="optAguardando">Aguardando temporada</option>
+          <option value="Concluída">Concluído</option>
+          <option value="Abandonei">Abandonei</option>
+        </select>
+      </div>
+      <div class="field"><label for="fNota">Nota (0 a 10)</label><input type="number" id="fNota" min="0" max="10" step="0.1" placeholder="Ex: 8.7"></div>
+    </div>
+    <div class="hint" style="margin:-8px 0 16px">"Aguardando temporada": você viu tudo o que saiu, mas a série continua. "Concluído": acabou, você parou de vez ou já viu o filme.</div>
+    <div class="field" id="fieldTemporadaEpisodio"><label>Onde você parou</label>
+      <div style="display:flex;gap:8px">
+        <input type="number" id="fTemporada" placeholder="Temporada" min="0" aria-label="Temporada">
+        <input type="number" id="fEpisodio" placeholder="Episódio" min="0" aria-label="Episódio">
+      </div>
+    </div>
+    <div class="field">
+      <label>Capa (opcional)</label>
+      <label class="dropzone" id="dropzone" for="fImagem">
+        <span id="imgPreview" class="drop-prev">🖼️</span>
+        <span class="drop-txt" id="dropTxt"></span>
+        <input type="file" id="fImagem" accept="image/*" class="sr-only">
+      </label>
+      <div class="cover-actions">
+        <button type="button" class="linkbtn" id="btnFindCover">🔎 Buscar capa automaticamente</button>
+        <button type="button" class="linkbtn" id="btnRemoveImg" style="display:none;color:#e07a6b">Remover imagem</button>
+      </div>
+      <div class="tmdb-results" id="tmdbResults"></div>
+    </div>
+    <div class="two-col">
+      <div class="field"><label for="fGenero">Gênero</label><input type="text" id="fGenero" placeholder="Ex: Drama / Crime"></div>
+      <div class="field"><label for="fVibe">Vibe / Humor</label><input type="text" id="fVibe" placeholder="Ex: Tenso, Épico"></div>
+    </div>
+    <div class="field">
+      <label>Streaming</label>
+      <div class="chip-group" id="chipStream">
+        <button type="button" class="chip" data-v="Netflix">Netflix</button>
+        <button type="button" class="chip" data-v="Prime Video">Prime Video</button>
+        <button type="button" class="chip" data-v="Max">Max</button>
+        <button type="button" class="chip" data-v="Disney+">Disney+</button>
+        <button type="button" class="chip" data-v="Globoplay">Globoplay</button>
+        <button type="button" class="chip" data-v="Apple TV+">Apple TV+</button>
+        <button type="button" class="chip" data-v="Star+">Star+</button>
+        <button type="button" class="chip" data-v="Paramount+">Paramount+</button>
+        <button type="button" class="chip" data-v="Crunchyroll">Crunchyroll</button>
+        <button type="button" class="chip" data-v="Stremio">Stremio</button>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field"><label for="fIndicadoPor">Indicado por</label><input type="text" id="fIndicadoPor" placeholder="Quem te indicou?"></div>
+      <div class="field"><label for="fDuracao">Duração média</label><input type="text" id="fDuracao" placeholder="~45 min"></div>
+    </div>
+    <div class="field"><label for="fResumo">Resumo</label><textarea id="fResumo" placeholder="Do que se trata"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" id="btnDelete" style="display:none">Remover</button>
+      <div style="display:flex;gap:10px;margin-left:auto">
+        <button class="btn btn-ghost" id="btnCancel">Cancelar</button>
+        <button class="btn btn-primary" id="btnSave">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="pickerOverlay">
+  <div class="modal" style="max-width:480px">
+    <h2 id="pickerTitle">Editar lista</h2>
+    <input type="text" id="pickerSearch" class="search" style="width:100%;margin-bottom:12px" placeholder="Buscar título...">
+    <div id="pickerList" style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto"></div>
+    <div class="modal-actions">
+      <div style="display:flex;gap:10px;margin-left:auto">
+        <button class="btn btn-primary" id="btnPickerDone">Concluído</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="overlay" id="dlgOverlay">
+  <div class="modal dlg" role="dialog" aria-modal="true" aria-labelledby="dlgTitle">
+    <div class="modal-head">
+      <h2 id="dlgTitle"></h2>
+      <button class="icon-btn" id="dlgClose" aria-label="Fechar (Esc)">✕</button>
+    </div>
+    <div id="dlgBody"></div>
+    <div class="modal-actions" id="dlgActions"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/config.js?v=20261031a"></script>
+<script src="js/data.js?v=20261031a"></script>
+<script src="js/app.js?v=20261031a"></script>
+<script src="js/ui.js?v=20261031a"></script>
+<script src="js/usuarios.js?v=20261031a"></script>
+<script src="js/feedback.js?v=20261031a"></script>
+<script src="js/comunidade.js?v=20261031a"></script>
+<script src="js/ficha.js?v=20261031a"></script>
+<script src="js/amizades.js?v=20261031a"></script>
+<script src="js/novidades.js?v=20261031a"></script>
+<script src="js/onda2.js?v=20261031a"></script>
+<script src="js/onda3.js?v=20261031a"></script>
+</body>
+</html>
