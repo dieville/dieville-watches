@@ -1057,3 +1057,12 @@ span.cm-av{display:inline-grid;place-items:center;background:var(--surface,#2629
 /* catálogo com poucos títulos: o caminho para adicionar nunca some (01/11/2026) */
 #poucosNota:not([style*="none"]){ display:flex !important; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .poucos-add{ min-height:44px; }
+
+/* começo com 5 títulos (01/11/2026) */
+.dc-prog{ display:flex; gap:5px; margin:10px 0 8px; }
+.dc-prog i{ flex:1; height:6px; border-radius:3px; background:var(--line); }
+.dc-prog i.on{ background:var(--amber); }
+.dc-quem{ margin-top:10px; }
+.dc-s small{ display:block; color:var(--text-dim); font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+body.onboarding #poucosNota{ display:none !important; }
+.dc-comece .dc-buscar{ color:#1a1205; border-color:var(--amber); }

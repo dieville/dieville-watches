@@ -6,7 +6,7 @@
 const MIN_HOME_ENERGIA = 5;
 const CHAVE_VISTO = 'dw-ultimo-visto';
 let ordemNovo = [], chaveNovo = "", idxNovo = 0;
-let sugIniciais = null, sugCarregando = false, sugIdx = 0;
+let sugIniciais = null, sugCarregando = false, sugIdx = 0, totalAnterior = null;
 
 /* ---------- quando foi a última vez que mexi num título ----------
    Vale a data mais recente entre o banco (titles.atualizado_em, muda com status, temporada e episódio, em qualquer aparelho)
@@ -80,14 +80,17 @@ function cartaoNovo(s, largo){
       ${poucos ? "" : chipsEnergia()}</div>
     <div class="dc-ft"><button type="button" class="dc-link o" data-dc-outra ${titulosNovo().length > 1 ? "" : "disabled"}>↻ Outra</button><button type="button" class="dc-link" data-dc-todos="Quero assistir">Ver todos (${totalFila()})</button></div></div></div>`;
 }
+const nomesJuntos = q=>{ const a = (q || "").split(", ").filter(Boolean); return a.length > 1 ? a.slice(0, -1).join(", ") + " e " + a[a.length - 1] : (a[0] || ""); };
 function cartaoComece(){
   const lista = sugIniciais || [];
   const tres = [0, 1, 2].map(i=> lista.length ? lista[(sugIdx + i) % lista.length] : null).filter(Boolean);
   const unicos = [...new Map(tres.map(t=> [t.titulo, t])).values()];
-  return `<div class="dc-comece"><div class="dc-tt">Comece por aqui</div>
-    <div class="dc-mt">${unicos.length ? "Títulos do catálogo do Dieville, seu amigo. Toque em + Vou ver para adicionar ao seu." : "Adicione o primeiro título e a home passa a sugerir o que ver."}</div>
-    ${unicos.length ? `<div class="dc-sug">${unicos.map(t=> `<div class="dc-s"><div class="dc-sp" style="background-image:url('${esc(t.imagem_url)}')"><button type="button" class="dc-vou" data-sug="${esc(t.titulo)}">+ Vou ver</button></div><b>${esc(t.titulo)}</b></div>`).join("")}</div>` : ""}
-    <div class="dc-acts">${lista.length > 3 ? `<button type="button" class="dc-link o" data-sug-outras>↻ Outras</button>` : ""}<button type="button" class="btn btn-ghost dc-buscar" data-dc-buscar>Buscar e adicionar um título</button></div></div>`;
+  const n = Math.min(shows.length, MIN_TITULOS);
+  const prog = `<div class="dc-prog" role="img" aria-label="${n} de ${MIN_TITULOS} títulos">${Array.from({ length: MIN_TITULOS }, (_, k)=> `<i class="${k < n ? "on" : ""}"></i>`).join("")}</div>`;
+  return `<div class="dc-comece"><div class="dc-tt">Monte o seu começo</div>${prog}
+    <div class="dc-mt"><b>${n} de ${MIN_TITULOS}.</b> Com ${MIN_TITULOS} títulos, a energia e os filtros aparecem.</div>
+    ${unicos.length ? `<div class="dc-mt dc-quem">Sugestões de quem você conhece no app. Toque em + Vou ver para adicionar.</div><div class="dc-sug">${unicos.map(t=> `<div class="dc-s"><div class="dc-sp" style="background-image:url('${esc(t.imagem_url)}')"><button type="button" class="dc-vou" data-sug="${esc(t.titulo)}">+ Vou ver</button></div><b>${esc(t.titulo)}</b>${t.quem ? `<small>${esc(nomesJuntos(t.quem))}</small>` : ""}</div>`).join("")}</div>` : ""}
+    <div class="dc-acts">${lista.length > 3 ? `<button type="button" class="dc-link o" data-sug-outras>↻ Outras sugestões</button>` : ""}<button type="button" class="btn btn-primary dc-buscar" data-dc-buscar>+ Buscar e adicionar um título</button></div></div>`;
 }
 
 /* ---------- desenho ---------- */
@@ -99,7 +102,17 @@ function renderHome(){
   document.body.classList.toggle('home-sem-energia', shows.length < MIN_HOME_ENERGIA);
   if(outros || document.body.dataset.tab !== "catalogo" && document.body.dataset.tab){ box.style.display = "none"; return; }
   let html = "";
-  if(!cont.length && !fila){
+  const dono = profile?.papel === "dono" || !perfisAtivos;
+  const onboarding = !dono && shows.length > 0 && shows.length < MIN_TITULOS;
+  document.body.classList.toggle('onboarding', onboarding);
+  if(totalAnterior !== null && totalAnterior < MIN_TITULOS && shows.length >= MIN_TITULOS && !dono){
+    showToast("Pronto! Agora você escolhe pela sua energia", { ms:7000, acao:"Ver", onAcao: ()=> box.scrollIntoView({ behavior:"smooth", block:"start" }) });
+  }
+  totalAnterior = shows.length;
+  if(onboarding){
+    if(sugIniciais === null && !sugCarregando) carregarSugestoes();
+    html = `<div class="dc-wrap one">${cartaoComece()}</div>`;
+  }else if(!cont.length && !fila){
     if(sugIniciais === null && !sugCarregando) carregarSugestoes();
     const vazio = !shows.length;
     // catálogo vazio sem sugestões: fica a tela de primeiro acesso de sempre
@@ -123,8 +136,9 @@ aoRenderCatalogo = function(list){ _aoRenderHome(list); renderHome(); };
 async function carregarSugestoes(){
   sugCarregando = true;
   try{
-    const { data, error } = await sb.rpc('sugestoes_iniciais');
-    sugIniciais = error ? [] : (data || []);
+    let r = await sb.rpc('sugestoes_comeco');
+    if(r.error) r = await sb.rpc('sugestoes_iniciais');   // reserva: só o catálogo do dono
+    sugIniciais = r.error ? [] : (r.data || []);
   }catch(e){ sugIniciais = []; }
   sugCarregando = false;
   renderHome();
