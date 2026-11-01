@@ -1030,3 +1030,11 @@ span.cm-av{display:inline-grid;place-items:center;background:var(--surface,#2629
 .stat.on{ border-color:#fff; background:var(--surface-2); }
 .stat.on .l{ color:var(--text); }
 .stat.on .n{ color:#fff; }
+
+/* 01/11: aviso de privacidade do teste */
+.priv-aviso{ position:fixed; left:12px; right:12px; bottom:calc(12px + env(safe-area-inset-bottom)); z-index:70; background:var(--surface); border:1px solid #747889; border-radius:16px; padding:14px 14px 12px; box-shadow:0 10px 30px #000a; max-width:420px; }
+.priv-aviso b{ display:block; font-size:15px; margin-bottom:4px; }
+.priv-aviso p{ font-size:13.5px; color:var(--text-dim); margin:0 0 10px; }
+.priv-btns{ display:flex; gap:8px; }
+.priv-btns .b2{ flex:1; min-height:44px; }
+@media (min-width:641px){ .priv-aviso{ left:auto; right:16px; bottom:16px; width:380px; } }

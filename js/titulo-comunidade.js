@@ -211,7 +211,7 @@ async function vincularFicha(s){
 const _fichaHTMLTC = fichaHTML;
 fichaHTML = function(s, publico){
   const h = _fichaHTMLTC(s, publico);
-  return (!publico && membroComunidade()) ? h.replace('<div id="fxComum"></div>', '<div id="fxComum"></div><div id="fxCom" class="fx-com"></div>') : h;
+  return (!publico && membroComunidade()) ? h.replace('<div id="fxComum"></div>', '<div id="fxComum"></div><div id="fxCom" class="fx-com" data-clarity-mask="True"></div>') : h;
 };
 const _ligarTC = ligarAcoesFicha;
 ligarAcoesFicha = function(corpo, s, origem){

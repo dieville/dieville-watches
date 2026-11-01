@@ -18,3 +18,8 @@ const sb = CONFIGURADO ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : nul
 const sbPublico = CONFIGURADO ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false, storageKey:'dw-publico' } }) : null;
 let currentUser = null;
 
+
+/* Microsoft Clarity (gravação de uso, só na fase de teste com amigos).
+   Vazio = desligado: nada é carregado e o aviso não aparece. O ID não é segredo.
+   Preencha só quando o teste começar (e com o mascaramento em Strict no painel do Clarity). */
+const CLARITY_ID = "";
