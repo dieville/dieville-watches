@@ -32,6 +32,7 @@ async function carregarComunidade(forcar = false){
   const { data, error } = await sb.rpc('comunidade_titulo', { p_tmdb_id: s.tmdbId, p_media: s.tmdbMedia, p_forcar: forcar });
   if(ct.s?.id !== s.id || !document.getElementById('fxCom')) return;
   if(error){
+    if(typeof medir === 'function') medir('erro_exibido');
     ct.retry = ()=> carregarComunidade(forcar);
     box.innerHTML = `<section class="cmx"><div class="cm-erro" role="alert"><b>Não consegui carregar a comunidade.</b><span>O resto da ficha continua normal.</span>
       <div class="cm-btr"><button type="button" class="b2" data-cm-retry>Tentar de novo</button></div></div></section>`;
@@ -39,6 +40,7 @@ async function carregarComunidade(forcar = false){
   }
   if(!data){ box.innerHTML = ""; return; }
   ct.dados = data; ct.forcar = forcar; ct.erro = null;
+  if(typeof medir === 'function'){ medirTag('tem_comunidade', data.amigos?.length ? 'sim' : 'nao'); if(data.amigos?.length) medir('comunidade_vista'); }
   renderComunidade();
 }
 
@@ -106,6 +108,7 @@ function atualizarContador(){
   if(t && c){ const r = 280 - t.value.length; c.textContent = r <= 40 ? `${r} restantes` : ""; }
 }
 function falhou(msg, error, retry){
+  if(typeof medir === 'function') medir('erro_exibido');
   ct.erro = { msg, det: textoErro(error), retry: retry || null }; ct.retry = retry || null;
   const t = document.getElementById('cmTxt'); if(t) ct.rascunho.texto = t.value;
   renderComunidade();
@@ -122,6 +125,7 @@ async function reagirT(v){
   if(d.minha === v) d.minha = null; else { d.minha = v; d.reacoes[v] = (d.reacoes[v] || 0) + 1; }
   lerRascunho(); ct.erro = null; renderComunidade();
   const { error } = await sb.rpc('reagir_titulo', { p_tmdb_id: ct.s.tmdbId, p_media: ct.s.tmdbMedia, p_tipo: v });
+  if(!error && typeof medir === 'function') medir('reacao_titulo');
   if(error){ d.minha = antes.minha; d.reacoes = antes.reacoes; falhou("Não consegui salvar sua reação.", error, ()=> reagirT(v)); }
 }
 async function enviarComentario(){
@@ -135,7 +139,7 @@ async function enviarComentario(){
   const b = document.getElementById('cmEnviar'); if(b){ b.disabled = true; b.textContent = "Enviando…"; }
   const { error } = await sb.rpc('comentar_titulo', { p_tmdb_id: s.tmdbId, p_media: s.tmdbMedia, p_texto: texto, p_temporada: temporada, p_episodio: episodio, p_spoiler: r.spoiler });
   if(error){ falhou("Não consegui enviar seu comentário.", error, enviarComentario); return; }
-  ct.rascunho = {}; ct.erro = null; showToast("Comentário enviado");
+  ct.rascunho = {}; ct.erro = null; if(typeof medir === 'function') medir('comentario_enviado'); showToast("Comentário enviado");
   await carregarComunidade(ct.forcar);
 }
 async function chamar(rpc, args, msgErro, depois, retry){
@@ -164,6 +168,7 @@ document.addEventListener('click', async e=>{
   if(sil){
     const uid = sil.dataset.cmSilenciar, nome = sil.dataset.nome;
     const ok = await chamar('silenciar_amigo', { p_id: uid, p_on: true }, `Não consegui silenciar ${nome}.`, ()=> carregarComunidade(ct.forcar), ()=> sil.click());
+    if(ok && typeof medir === 'function') medir('amigo_silenciado');
     if(ok) showToast(`${nome} silenciado. Dá para reativar em Amigos.`, { acao:"Desfazer", ms:6000, onAcao: async ()=>{ await sb.rpc('silenciar_amigo', { p_id: uid, p_on: false }); carregarComunidade(ct.forcar); } });
     return;
   }
@@ -173,6 +178,7 @@ document.addEventListener('click', async e=>{
     const id = rp.dataset.cmReportarOk, motivo = box.querySelector('input[name=cmMotivo]:checked')?.value || "outro", detalhe = document.getElementById('cmDetalhe')?.value || "";
     lerRascunho();
     const ok = await chamar('reportar_comentario', { p_id: id, p_motivo: motivo, p_detalhe: detalhe }, "Não consegui enviar o reporte.", ()=> carregarComunidade(ct.forcar), ()=> rp.click());
+    if(ok && typeof medir === 'function') medir('comentario_reportado');
     if(ok) showToast("Obrigado, o Dieville vai ver. O comentário some só para você.");
     return;
   }

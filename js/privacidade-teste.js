@@ -28,6 +28,7 @@ function escolherPriv(v){
 }
 const PRIV_LONGO = `<p><b>O que gravamos</b><br>Cliques, toques, rolagem e as telas que você abre, para ver onde o app confunde. Usamos o Microsoft Clarity.</p>
 <p><b>O que fica escondido</b><br>Tudo que você escreve (comentários, buscas, notas) e os nomes de outras pessoas aparecem tapados na gravação.</p>
+<p><b>Código anônimo</b><br>Para juntar as visitas da mesma pessoa, usamos um código curto gerado a partir da sua conta. Ele não tem seu nome nem seu e-mail.</p>
 <p><b>Quem vê</b><br>Só o Dieville, dono do app.</p>
 <p><b>Como mudar de ideia</b><br>No menu da conta, em Privacidade do teste, você liga ou desliga quando quiser. Ao recusar, o Clarity para de gravar e deixa de usar cookies.</p>
 <p><b>Até quando</b><br>Só durante o teste com amigos.</p>`;
