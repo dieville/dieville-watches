@@ -22,4 +22,4 @@ let currentUser = null;
 /* Microsoft Clarity (gravação de uso, só na fase de teste com amigos).
    Vazio = desligado: nada é carregado e o aviso não aparece. O ID não é segredo.
    Preencha só quando o teste começar (e com o mascaramento em Strict no painel do Clarity). */
-const CLARITY_ID = "";
+const CLARITY_ID = "z6wxb12xkq";
