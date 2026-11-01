@@ -235,6 +235,7 @@
     <button class="on" data-sub="usuarios" role="tab">Usuários</button>
     <button data-sub="convites" role="tab">Convites</button>
     <button data-sub="feedback" role="tab">Feedback <span class="tab-badge" id="fbBadge" style="display:none"></span></button>
+    <button data-sub="reportes" role="tab">Reportes <span class="tab-badge" id="repBadge" style="display:none"></span></button>
   </div>
   <div class="sub-pane" data-pane="usuarios">
     <div class="usr-filters" id="usrFilters"></div>
@@ -252,6 +253,9 @@
   <div class="sub-pane" data-pane="feedback" style="display:none">
     <div class="usr-filters" id="fbFilters"></div>
     <div id="fbList"></div>
+  </div>
+  <div class="sub-pane" data-pane="reportes" style="display:none">
+    <div id="repList"></div>
   </div>
 </section>
 
@@ -288,6 +292,11 @@
   <div class="pcard-box">
     <h3>Seus amigos</h3>
     <div id="amigosLista"></div>
+  </div>
+  <div class="pcard-box" id="amigosSilenciados" style="display:none">
+    <h3>Silenciados</h3>
+    <small>Os comentários deles ficam escondidos só para você.</small>
+    <div id="silList"></div>
   </div>
 </section>
 
@@ -472,6 +481,7 @@
 <script src="js/novidades.js?v=20261101a"></script>
 <script src="js/onda2.js?v=20261101a"></script>
 <script src="js/onda3.js?v=20261101a"></script>
+<script src="js/titulo-comunidade.js?v=20261101a"></script>
 <script src="js/home.js?v=20261101a"></script>
 </body>
 </html>
