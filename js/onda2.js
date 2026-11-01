@@ -129,7 +129,10 @@ function aoRenderCatalogo(list){
   document.body.classList.toggle('sem-titulos', !shows.length);
   const nota = document.getElementById('poucosNota');
   nota.style.display = poucos && shows.length > 0 ? "" : "none";
-  if(poucos && shows.length) nota.innerHTML = `Os filtros e a pergunta da energia aparecem quando você tiver ${MIN_TITULOS} títulos. <b>${shows.length} de ${MIN_TITULOS}</b>`;
+  if(poucos && shows.length){
+    nota.innerHTML = `<span>Os filtros e a pergunta da energia aparecem quando você tiver ${MIN_TITULOS} títulos. <b>${shows.length} de ${MIN_TITULOS}</b></span><button type="button" class="btn btn-primary poucos-add" data-poucos-add>+ Adicionar um título</button>`;
+    nota.onclick = e=>{ if(e.target.closest('[data-poucos-add]')) document.getElementById('btnAdd').click(); };
+  }
   if(!shows.length && !dono) montarPrimeiroAcesso();
   const hint = document.getElementById('energiaHint');
   hint.innerHTML = filters.carga === "all" ? "Escolha uma opção e o catálogo mostra o que combina com hoje."
