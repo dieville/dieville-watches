@@ -106,10 +106,8 @@ document.getElementById('btnConvidarAmigo').onclick = ()=>{
           const { data, error } = await sb.from('invites').insert({ nome, lista_id: lista }).select().single();
           if(error){ showToast("Não consegui criar o convite"); return false; }
           const url = linkConvite(data);
-          document.getElementById('cvRes').innerHTML = `<div class="inv-link">${esc(url)}</div>`;
-          btn.textContent = "Copiar ou compartilhar";
-          btn.onclick = ()=> copiarOuCompartilhar(url, `Convite para ${nome}`);
-          copiarOuCompartilhar(url, `Convite para ${nome}`);
+          mostrarMensagemConvite(document.getElementById('cvRes'), url);
+          btn.style.display = "none";
       } }
     ]
   });

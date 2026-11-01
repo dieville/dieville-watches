@@ -1038,3 +1038,9 @@ span.cm-av{display:inline-grid;place-items:center;background:var(--surface,#2629
 .priv-btns{ display:flex; gap:8px; }
 .priv-btns .b2{ flex:1; min-height:44px; }
 @media (min-width:641px){ .priv-aviso{ left:auto; right:16px; bottom:16px; width:380px; } }
+
+/* mensagem de convite (01/11/2026) */
+.inv-msg{ width:100%; box-sizing:border-box; margin-top:6px; padding:10px 12px; font:inherit; font-size:14px; line-height:1.45; color:var(--text,#f3ede2); background:var(--bg); border:1px solid var(--line,#3a342b); border-radius:10px; resize:vertical; }
+.inv-msg:focus{ outline:2px solid var(--amber); outline-offset:1px; }
+.inv-acts{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+.inv-acts .btn{ min-height:44px; }

@@ -172,6 +172,29 @@ async function copiarOuCompartilhar(url, titulo){
   if(navigator.share){ try{ await navigator.share({ title: titulo, url }); return; }catch(e){ if(e.name === 'AbortError') return; } }
   try{ await navigator.clipboard.writeText(url); showToast("Link do convite copiado"); }catch(e){ prompt("Copie o link do convite:", url); }
 }
+/* mensagem de convite pronta (dono fala como criador; membro convida em nome próprio) */
+function textoConvite(url){
+  const dono = !perfisAtivos || profile?.papel === "dono";
+  const abertura = dono
+    ? "Oi! Desenvolvi um app chamado Dieville Watches e queria que você fosse um dos primeiros a usar.\n\nA ideia: nos fins de semana eu perdia mais tempo escolhendo o que ver do que vendo. Então ele funciona assim:"
+    : "Oi! Te convidei para o Dieville Watches, um app para guardar o que você quer assistir, e queria que você fosse um dos primeiros a usar.\n\nA ideia: parar de perder mais tempo escolhendo o que ver do que vendo. Ele funciona assim:";
+  return abertura + "\n• você guarda séries, filmes e animes num lugar só\n• escolhe a energia do dia (cansado, normal ou com foco) e ele mostra só o que combina\n• o botão Escolhe pra mim sugere 3 opções em segundos\n• você vê o que os amigos estão assistindo e comenta sem levar spoiler\n\nSeu convite está aqui: " + url + "\nO acesso é por convite e o link vale por 7 dias.";
+}
+async function copiarMensagem(texto){
+  try{ await navigator.clipboard.writeText(texto); showToast("Mensagem copiada"); }catch(e){ prompt("Copie a mensagem:", texto); }
+  if(typeof medir === 'function') medir('convite_enviado');
+}
+function abrirWhatsApp(texto){
+  window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank", "noopener");
+  if(typeof medir === 'function') medir('convite_enviado');
+}
+/* bloco com mensagem editável + Copiar + WhatsApp (dentro de um container) */
+function mostrarMensagemConvite(box, url){
+  box.innerHTML = `<label class="lab" for="invMsg">Mensagem (você pode editar antes de enviar)</label><textarea id="invMsg" rows="9" class="inv-msg"></textarea><div class="inv-acts"><button type="button" class="btn btn-primary" id="invMsgCopy">📋 Copiar mensagem</button><button type="button" class="btn btn-ghost" id="invMsgWa">💬 Enviar no WhatsApp</button></div>`;
+  const ta = box.querySelector('#invMsg'); ta.value = textoConvite(url);
+  box.querySelector('#invMsgCopy').onclick = ()=> copiarMensagem(ta.value);
+  box.querySelector('#invMsgWa').onclick = ()=> abrirWhatsApp(ta.value);
+}
 function renderConvites(){
   const nomesListas = {};
   lists.forEach(l=> nomesListas[l.id] = l.nome);
@@ -181,12 +204,14 @@ function renderConvites(){
     const ativo = !c.usado_por && !c.cancelado && new Date(c.expira_em) > new Date();
     const st = c.usado_por ? `<span class="pill-s ps-ok">USADO</span>` : c.cancelado ? `<span class="pill-s ps-off">CANCELADO</span>` : !ativo ? `<span class="pill-s ps-off">EXPIRADO</span>` : `<span class="pill-s ps-wait">AGUARDANDO</span>`;
     const por = c.criado_por !== currentUser.id ? ` · feito por ${esc(nomeDe(c.criado_por))}` : "";
-    return `<div class="pcard"><b>${esc(c.nome)}</b>${st}<div class="meta2">${c.lista_id ? `Lista: ${esc(nomesListas[c.lista_id] || "de outra pessoa")} · ` : ""}criado em ${dataCurta(c.criado_em)}${por}${c.usado_por ? ` · aceito em ${dataCurta(c.usado_em)}` : ativo ? ` · expira em ${dataCurta(c.expira_em)}` : ""}</div>${ativo ? `<div class="acts"><button class="btn btn-ghost" data-copy="${c.id}">📋 Copiar link</button><button class="btn btn-no" data-cancel="${c.id}">Cancelar convite</button></div>` : ""}</div>`;
+    return `<div class="pcard"><b>${esc(c.nome)}</b>${st}<div class="meta2">${c.lista_id ? `Lista: ${esc(nomesListas[c.lista_id] || "de outra pessoa")} · ` : ""}criado em ${dataCurta(c.criado_em)}${por}${c.usado_por ? ` · aceito em ${dataCurta(c.usado_em)}` : ativo ? ` · expira em ${dataCurta(c.expira_em)}` : ""}</div>${ativo ? `<div class="acts"><button class="btn btn-ghost" data-copy="${c.id}">📋 Copiar mensagem</button><button class="btn btn-ghost" data-wa="${c.id}">💬 WhatsApp</button><button class="btn btn-no" data-cancel="${c.id}">Cancelar convite</button></div>` : ""}</div>`;
   }).join("") : `<div class="empty-sm">Nenhum convite ainda.</div>`;
 }
 document.getElementById('invList2').addEventListener('click', async e=>{
   const cp = e.target.closest('[data-copy]');
-  if(cp){ const c = convites.find(x=> x.id === cp.dataset.copy); return copiarOuCompartilhar(linkConvite(c), `Convite para ${c.nome}`); }
+  if(cp){ const c = convites.find(x=> x.id === cp.dataset.copy); return copiarMensagem(textoConvite(linkConvite(c))); }
+  const wa = e.target.closest('[data-wa]');
+  if(wa){ const c = convites.find(x=> x.id === wa.dataset.wa); return abrirWhatsApp(textoConvite(linkConvite(c))); }
   const cc = e.target.closest('[data-cancel]');
   if(cc){
     if(!(await confirmar({ titulo:"Cancelar este convite?", texto:"O link para de funcionar.", botao:"Cancelar convite", perigo:true }))) return;
@@ -202,8 +227,7 @@ document.getElementById('btnCreateInvite').onclick = async ()=>{
   const { data, error } = await sb.from('invites').insert({ nome, lista_id: lista }).select().single();
   if(error){ showToast("Não consegui criar o convite: " + error.message); return; }
   const url = linkConvite(data);
-  document.getElementById('invResult').innerHTML = `<div class="inv-link">${esc(url)}</div><div class="acts" style="display:flex;gap:8px;margin-top:10px"><button class="btn btn-primary" id="invShare">📋 Copiar ou compartilhar</button></div>`;
-  document.getElementById('invShare').onclick = ()=> copiarOuCompartilhar(url, `Convite para ${nome}`);
+  mostrarMensagemConvite(document.getElementById('invResult'), url);
   document.getElementById('invName').value = "";
   loadPeople();
 };
