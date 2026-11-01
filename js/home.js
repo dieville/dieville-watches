@@ -8,8 +8,15 @@ const CHAVE_VISTO = 'dw-ultimo-visto';
 let ordemNovo = [], chaveNovo = "", idxNovo = 0;
 let sugIniciais = null, sugCarregando = false, sugIdx = 0;
 
-/* ---------- quando foi a última vez que mexi num título (guardado neste aparelho) ---------- */
+/* ---------- quando foi a última vez que mexi num título ----------
+   Vale a data mais recente entre o banco (titles.atualizado_em, muda com status, temporada e episódio, em qualquer aparelho)
+   e a guardada neste aparelho (cobre o intervalo até a tela recarregar). Títulos antigos têm atualizado_em = criação,
+   por isso a data local ainda ganha quando é mais nova. */
 const ultimoVisto = ()=> lerLS2(CHAVE_VISTO, {});
+function vistoEm(s, mapa){
+  const loc = (mapa || ultimoVisto())[s.id] || "", srv = s.atualizadoEm || "";
+  return loc > srv ? loc : srv;
+}
 function marcarVisto(id){
   const m = ultimoVisto(); m[id] = new Date().toISOString();
   const ids = new Set(shows.map(s=> s.id));
@@ -28,7 +35,7 @@ const capaHome = s=> s.imagem ? `background-image:url('${esc(s.imagem)}')` : `ba
 function titulosContinuar(){
   const v = ultimoVisto();
   return shows.filter(s=> s.status === "Assistindo").sort((a, b)=>
-    (v[b.id] || "").localeCompare(v[a.id] || "") || (b.episodio ? 1 : 0) - (a.episodio ? 1 : 0) || (b.createdAt || "").localeCompare(a.createdAt || ""));
+    vistoEm(b, v).localeCompare(vistoEm(a, v)) || (b.episodio ? 1 : 0) - (a.episodio ? 1 : 0) || (b.createdAt || "").localeCompare(a.createdAt || ""));
 }
 function titulosNovo(){
   const e = filters.carga;
@@ -55,7 +62,7 @@ function chipsEnergia(){
     `<button type="button" role="radio" aria-checked="${filters.carga === v}" class="${filters.carga === v ? "on" : ""}" data-e="${v}">${iconeEnergia(v)}<span>${t}</span></button>`).join("")}</div>`;
 }
 function cartaoContinuar(s, largo){
-  const v = ultimoVisto()[s.id];
+  const v = vistoEm(s);
   const prog = s.tipo === "Filme" ? "Filme" : s.episodio ? `T${s.temporada || 1} · E${s.episodio}` : "Onde você parou?";
   const quando = v ? ` · visto ${tempoAtras(v)}` : "";
   return `<div class="dc ${largo ? "h" : ""}" data-dc-abrir="${s.id}" tabindex="0" role="button" aria-label="Continuar ${esc(s.titulo)}: ver ficha">

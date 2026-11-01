@@ -50,7 +50,7 @@ function fromRow(r){
     streaming: r.streaming || [], duracao: r.duracao || "",
     temporada: r.temporada, episodio: r.episodio,
     imagem: r.imagem_url || null, imagemPath: r.imagem_path || null,
-    indicadoPor: r.indicado_por || "", createdAt: r.created_at || "",
+    indicadoPor: r.indicado_por || "", createdAt: r.created_at || "", atualizadoEm: r.atualizado_em || "",
     tmdbId: r.tmdb_id ?? null, tmdbMedia: r.tmdb_media || null, ano: r.ano ?? null, minhaNota: r.minha_nota ?? null, nota: (r.nota === null || r.nota === undefined) ? null : Number(r.nota)
   };
 }
