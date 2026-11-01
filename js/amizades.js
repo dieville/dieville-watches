@@ -149,3 +149,27 @@ async function loadAmigoLanding(codigo){
   }
   box.style.display = "block";
 }
+
+/* ---------- aviso para quem entrou por link de grupo: agora é amigo do dono ---------- */
+const _aoIniciarGrpOrig = aoIniciarApp;
+aoIniciarApp = async function(){
+  await _aoIniciarGrpOrig();
+  if(!currentUser || profile?.papel === "dono") return;
+  let visto = false; try{ visto = !!localStorage.getItem('dw-aviso-grupo'); }catch(e){}
+  if(visto) return;
+  setTimeout(async ()=>{
+    const { data, error } = await sb.rpc('meu_convite_grupo');
+    if(error || !data?.grupo) return;
+    try{ localStorage.setItem('dw-aviso-grupo', '1'); }catch(e){}
+    if(document.querySelector('#dlgOverlay.open')) return;
+    const dono = "Dieville";
+    abrirDialogo({
+      titulo: `Você e o ${dono} agora são amigos`,
+      corpo: `<p>Você entrou pelo link <b>${esc(data.nome)}</b>. O ${dono} passa a ver o que você começa a assistir e você vê o que ele assiste.</p><p class="muted">Se preferir, dá para desligar o seu lado agora. Você muda isso quando quiser no menu da conta.</p>`,
+      botoes: [
+        { texto:"Desligar o meu lado", acao: async ()=>{ const { error:e2 } = await sb.rpc('set_compartilhar', { p_valor:false }); if(e2){ showToast("Não consegui mudar essa opção"); return false; } profile.compartilhar_assistindo = false; if(typeof atualizarCompartilhar === 'function') atualizarCompartilhar(); showToast("Seus amigos não vão ver o que você assiste"); } },
+        { texto:"Manter ligado", classe:"btn-primary" }
+      ]
+    });
+  }, 1200);
+};

@@ -1567,7 +1567,9 @@ async function renderPublicCta(l, n, donoNome){
     const { data: c } = await sbPublico.rpc('check_invite', { p_codigo: P_CONVITE });
     if(c && c.valido){
       box.className = "pub-cta inv";
-      box.innerHTML = `<b class="h">${esc(c.nome)}, você foi convidado 🎟️</b><p>Crie sua watchlist e comece com ${n ? `estes ${plural(n, "título", "títulos")}` : "o pé direito"}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite de uso único.</small>`;
+      box.innerHTML = c.grupo
+        ? `<b class="h">Você foi convidado para o Dieville Watches 🎟️</b><p>Crie sua watchlist${n ? ` e comece com ${plural(n, "título", "títulos")}` : ""}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite: ${esc(c.nome)}. Entre com o Google e peça acesso.</small>`
+        : `<b class="h">${esc(c.nome)}, você foi convidado 🎟️</b><p>Crie sua watchlist e comece com ${n ? `estes ${plural(n, "título", "títulos")}` : "o pé direito"}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite de uso único.</small>`;
       box.style.display = "block"; return;
     }
   }
@@ -1585,12 +1587,12 @@ async function loadInviteLanding(){
   const box = document.getElementById('pubCta');
   const gbtn = `<button class="btn btn-google" data-google>${document.querySelector('[data-google]').innerHTML}</button>`;
   if(c && c.valido){
-    document.getElementById('pubTitle').textContent = `${c.nome}, você foi convidado 🎟️`;
+    document.getElementById('pubTitle').textContent = c.grupo ? "Você foi convidado para o Dieville Watches 🎟️" : `${c.nome}, você foi convidado 🎟️`;
     document.getElementById('pubSub').textContent = "Organize séries, filmes e animes pela sua energia do dia.";
-    box.className = "pub-cta inv"; box.innerHTML = `<div class="row-btns">${gbtn}</div><small>Convite de uso único.</small>`;
+    box.className = "pub-cta inv"; box.innerHTML = `<div class="row-btns">${gbtn}</div><small>${c.grupo ? `Convite: ${esc(c.nome)}. Entre com o Google e peça acesso.` : "Convite de uso único."}</small>`;
   }else{
     document.getElementById('pubTitle').textContent = "Convite indisponível";
-    document.getElementById('pubSub').textContent = "Este convite já foi usado, foi cancelado ou expirou.";
+    document.getElementById('pubSub').textContent = "Este convite já foi usado, foi cancelado, expirou ou atingiu o limite.";
     box.className = "pub-cta"; box.innerHTML = `<div class="row-btns"><button class="btn btn-ghost" data-google>Pedir acesso</button></div>`;
   }
   box.style.display = "block";

@@ -1044,3 +1044,12 @@ span.cm-av{display:inline-grid;place-items:center;background:var(--surface,#2629
 .inv-msg:focus{ outline:2px solid var(--amber); outline-offset:1px; }
 .inv-acts{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
 .inv-acts .btn{ min-height:44px; }
+
+/* convite de grupo (01/11/2026) */
+.inv-modo{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+.inv-modo button{ min-height:44px; padding:8px 14px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--text-dim); font:inherit; font-size:14px; cursor:pointer; }
+.inv-modo button.on{ background:var(--amber); color:#1a1408; border-color:var(--amber); font-weight:600; }
+.inv-nota{ font-size:13px; margin:2px 0 6px; }
+.grp-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:10px 12px; margin:8px 0; border:1px dashed var(--line); border-radius:12px; font-size:14px; }
+.inv-nota{ color:var(--text-dim); margin:6px 0 14px; }
+.invite-form label[for="invMsg"]{ display:block; margin-top:18px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); }
