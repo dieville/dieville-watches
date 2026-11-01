@@ -363,6 +363,7 @@ function setTab(tab){
   if(tab==='listas') renderLists();
   if(tab==='pessoas') loadPeople();
   if(tab==='amigos' && typeof loadAmigos === 'function') loadAmigos();
+  if(tab==='novidades' && typeof abrirNovidades === 'function') abrirNovidades();
   window.scrollTo(0,0);
 }
 document.querySelectorAll('.tabs button').forEach(b=> b.onclick = ()=> setTab(b.dataset.tab));

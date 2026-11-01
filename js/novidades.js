@@ -79,18 +79,41 @@ function cartaoFaixa(it){
     <div class="po" style="${capa(a.imagem_url, a.titulo)}"></div>
     <div class="t"><span class="ntag am">👥 ${esc((a.nome || "Amigo").split(" ")[0].toUpperCase())}</span><div>${fraseNovidade(a)}</div><small>${tempoAtras(a.created_at)}</small>${botoesNovidade(a)}</div></div>`;
 }
+function textoTicker(it){
+  if(it.k === "tv") return `<b>${esc(it.t.titulo)}</b> ${esc(it.t.etiqueta)}`;
+  if(it.k === "vinc") return `Confere ${plural(it.n, "título", "títulos")} para ativar ano e avisos`;
+  if(it.k === "ret") return fraseRetorno(it.r);
+  const a = it.a;
+  return `<b>${esc((a.nome || "Amigo").split(" ")[0])}</b> ${fraseNovidade(a)}`;
+}
 function renderFaixa(){
   const el = document.getElementById('novFaixa');
   const itens = itensFaixa();
   if(!itens.length){ el.style.display = "none"; el.innerHTML = ""; return; }
   el.style.display = "";
-  const d0 = itens[0];
-  const dest = d0.k === "tv" ? `${d0.t.titulo} ${d0.t.selo.replace("📺 ", "")}` : d0.k === "am" ? `${(d0.a.nome || "").split(" ")[0]} ${d0.a.tipo === "concluiu" ? "terminou" : d0.a.tipo === "lista" ? "publicou uma lista" : "começou"} ${d0.a.titulo || ""}` : d0.k === "vinc" ? "confira seus títulos" : "alguém reagiu ao que é seu";
   const aberta = el.classList.contains('aberta');
-  el.innerHTML = `<div class="nf-h"><div class="nf-tt"><b>Novidades <span class="nf-n">${itens.length}</span> <span class="nf-dest">· ${esc(dest)}</span></b><small class="nf-sub">Episódios novos das suas séries e o que seus amigos andam vendo</small></div><button type="button" class="linkbtn nf-toggle" id="btnNovToggle" aria-expanded="${aberta}">${aberta ? "Recolher ▴" : "Expandir ▾"}</button><button type="button" class="linkbtn" id="btnNovVerTudo">Ver tudo</button></div>
-    <div class="nf-cards">${itens.slice(0, 12).map(cartaoFaixa).join("")}</div>`;
-  document.getElementById('btnNovVerTudo').onclick = ()=> setTab('amigos');
-  document.getElementById('btnNovToggle').onclick = ()=>{ el.classList.toggle('aberta'); gravarLS('dw-nov-aberta', el.classList.contains('aberta')); renderFaixa(); };
+  const pausada = el.classList.contains('pausada');
+  const topo = itens.slice(0, 5);
+  const grupo = topo.map(it=> `<span>${textoTicker(it)}</span>`).join("");
+  const dur = Math.max(28, topo.length * 9);
+  el.innerHTML = `<div class="nf-bar">
+      <div class="nf-vp" id="nfVp" role="button" tabindex="0" aria-pressed="${pausada}" aria-label="Novidades em movimento. Toque para ${pausada ? "continuar" : "pausar"}">
+        <div class="nf-trk" style="--dur:${dur}s" aria-hidden="true"><div class="nf-g">${grupo}</div><div class="nf-g dup">${grupo}</div></div>
+      </div>
+      <ul class="sr-only">${topo.map(it=> `<li>${textoTicker(it)}</li>`).join("")}</ul>
+      <div class="nf-fx"><b>Novidades</b><span class="nf-n">${itens.length}</span>
+        <button type="button" class="b3 nf-toggle" id="btnNovToggle" aria-expanded="${aberta}" aria-label="${aberta ? "Recolher" : "Expandir"} novidades">${aberta ? "▴" : "▾"}</button></div>
+    </div>
+    ${aberta ? `<div class="nf-open"><div class="nf-cards">${itens.slice(0, 12).map(cartaoFaixa).join("")}</div>
+      <div class="nf-bt"><button type="button" class="b3" id="btnNovRecolher">Recolher ▴</button><button type="button" class="b2" id="btnNovVerTudo">Ver tudo (${itens.length})</button></div></div>` : ""}`;
+  const alternar = ()=>{ el.classList.toggle('aberta'); gravarLS('dw-nov-aberta', el.classList.contains('aberta')); renderFaixa(); };
+  document.getElementById('btnNovToggle').onclick = alternar;
+  const rec = document.getElementById('btnNovRecolher'); if(rec) rec.onclick = alternar;
+  const vt = document.getElementById('btnNovVerTudo'); if(vt) vt.onclick = ()=> setTab('novidades');
+  const vp = document.getElementById('nfVp');
+  const pausar = ()=>{ el.classList.toggle('pausada'); vp.setAttribute('aria-pressed', el.classList.contains('pausada')); };
+  vp.onclick = pausar;
+  vp.onkeydown = e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pausar(); } };
 }
 
 /* ---------- aba Amigos ---------- */
@@ -106,7 +129,7 @@ function itemFeedHTML(a){
 }
 function renderAbaNovidades(){
   const novos = retornoNovo().length;
-  document.getElementById('novChips').innerHTML = [["tudo","Tudo"],["voce","Com você"],["comentarios","Comentários"]].map(([v, t])=>
+  document.getElementById('novChips').innerHTML = [["tudo","Tudo"],["titulos","Seus títulos"],["voce","Com você"],["comentarios","Comentários"]].map(([v, t])=>
     `<button type="button" role="tab" aria-selected="${novFiltro === v}" class="chip ${novFiltro === v ? "on" : ""}" data-nv-filtro="${v}">${t}${v === "voce" && novos ? ` <span class="tab-badge">${novos}</span>` : ""}</button>`).join("");
   const ret = document.getElementById('novRetorno'), feed = document.getElementById('amigosFeed');
   const novosRet = novRetorno.filter(r=> !retornoVistoAntes || r.created_at > retornoVistoAntes);
@@ -118,14 +141,36 @@ function renderAbaNovidades(){
     return;
   }
   ret.innerHTML = novFiltro === "tudo" && novosRet.length ? `<div class="nv-voce">${novosRet.slice(0, 3).map(r=> `<div>${fraseRetorno(r)}</div>`).join("")}${novosRet.length > 3 ? `<button type="button" class="linkbtn" data-nv-filtro="voce">Ver tudo (${novosRet.length})</button>` : ""}</div>` : "";
+  if(novFiltro === "titulos"){
+    ret.innerHTML = "";
+    feed.innerHTML = blocosTitulos() || `<div class="empty-sm">Quando uma série sua tiver episódio ou temporada nova, aparece aqui.</div>`;
+    return;
+  }
   const itens = novFiltro === "comentarios" ? novFeed.filter(a=> a.comentarios > 0) : novFeed;
   feed.innerHTML = itens.length ? itens.map(itemFeedHTML).join("")
     : `<div class="empty-sm">${novFiltro === "comentarios" ? "Nenhuma conversa ainda. Comente uma novidade para começar." : amigos.some(a=> a.status === "aceita") ? "Seus amigos ainda não fizeram nada por aqui." : "Quando você tiver amigos, o que eles começarem, terminarem ou publicarem aparece aqui."}</div>`;
+  if(novFiltro === "tudo") feed.insertAdjacentHTML('afterbegin', blocosTitulos());
+  cabecalhosDia(feed);
 }
-
-const _loadAmigosNov = loadAmigos;
-loadAmigos = async function(){
-  await Promise.all([_loadAmigosNov(), carregarNovidadesAmigos()]);
+function blocosTitulos(){
+  const l = itensFaixa().filter(i=> i.k === "tv" || i.k === "vinc");
+  return l.length ? `<div class="nv-dia">Seus títulos</div><div class="nv-grid">${l.map(cartaoFaixa).join("")}</div>` : "";
+}
+function grupoDia(iso){
+  const d = new Date(iso), h = new Date(), ini = x=> new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const diff = Math.round((ini(h) - ini(d)) / 864e5);
+  return diff <= 0 ? "Hoje" : diff === 1 ? "Ontem" : diff < 7 ? "Esta semana" : "Antes";
+}
+function cabecalhosDia(feed){
+  let ult = "";
+  feed.querySelectorAll('.feed-item[data-item]').forEach(el=>{
+    const a = novFeed.find(x=> x.id === el.dataset.item); if(!a) return;
+    const g = grupoDia(a.created_at);
+    if(g !== ult){ el.insertAdjacentHTML('beforebegin', `<div class="nv-dia">${g}</div>`); ult = g; }
+  });
+}
+async function abrirNovidades(){
+  try{ await carregarNovidadesAmigos(); }catch(e){ showToast("Não consegui carregar as novidades. Tente de novo."); }
   if(retornoVistoAntes === null) retornoVistoAntes = profile?.retorno_visto_em || "";
   renderAbaNovidades();
   if(retornoNovo().length){
@@ -133,13 +178,19 @@ loadAmigos = async function(){
     if(profile) profile.retorno_visto_em = new Date().toISOString();
     atualizarBadgeAmigos(); renderFaixa();
   }
+}
+
+const _loadAmigosNov = loadAmigos;
+loadAmigos = async function(){
+  await _loadAmigosNov();
 };
 const _badgeAmigosOrig = atualizarBadgeAmigos;
 atualizarBadgeAmigos = function(){
   const pedidos = amigos.filter(a=> a.status === "pendente" && a.recebido).length;
-  const n = pedidos + retornoNovo().length;
   const b = document.getElementById('amigosBadge');
-  b.textContent = n; b.style.display = n ? "" : "none";
+  b.textContent = pedidos; b.style.display = pedidos ? "" : "none";
+  const n = retornoNovo().length, c = document.getElementById('novBadge');
+  if(c){ c.textContent = n; c.style.display = n ? "" : "none"; }
 };
 
 /* ---------- comentários ---------- */
@@ -188,7 +239,7 @@ document.addEventListener('click', async e=>{
   if(com){
     e.stopPropagation();
     const id = com.dataset.nvCom;
-    if(document.body.dataset.tab !== "amigos"){ novFiltro = "tudo"; await setTab('amigos'); setTimeout(()=> abrirComentarios(id, true), 300); return; }
+    if(document.body.dataset.tab !== "novidades"){ novFiltro = "tudo"; await setTab('novidades'); setTimeout(()=> abrirComentarios(id, true), 400); return; }
     const box = document.getElementById('coms-' + id);
     if(box && !box.hidden){ box.hidden = true; return; }
     return abrirComentarios(id, true);
@@ -229,7 +280,7 @@ document.addEventListener('click', async e=>{
     return;
   }
   if(e.target.closest('[data-nv-conferir]')){ e.stopPropagation(); return abrirConferir(); }
-  if(e.target.closest('[data-nv-ir-com-voce]')){ novFiltro = "voce"; return setTab('amigos'); }
+  if(e.target.closest('[data-nv-ir-com-voce]')){ novFiltro = "voce"; return setTab('novidades'); }
   if(e.target.closest('button, a, input, form')) return;
   const fp = e.target.closest('[data-nv-ficha-propria]');
   if(fp){ const s = shows.find(x=> x.id === fp.dataset.nvFichaPropria); if(s) abrirFicha(s, fp); return; }

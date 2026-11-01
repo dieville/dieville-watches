@@ -31,6 +31,7 @@ function abrirFiltros(abrir){
   else document.getElementById('btnFiltros').focus();
 }
 document.getElementById('btnFiltros').onclick = ()=> abrirFiltros(true);
+document.getElementById('btnFiltros2').onclick = ()=> abrirFiltros(true);
 sheetBg.onclick = ()=> abrirFiltros(false);
 document.getElementById('btnSheetVer').onclick = ()=> abrirFiltros(false);
 document.getElementById('btnSheetLimpar').onclick = ()=>{ const c = filters.carga; resetFilters(); filters.carga = c; setEnergia(c); };
@@ -136,6 +137,7 @@ function aoRenderCatalogo(list){
   document.querySelectorAll('#energiaBox [data-e]').forEach(b=>{ const on = b.dataset.e === filters.carga; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
   const n = nFiltros();
   document.getElementById('filtrosN').textContent = n ? ` · ${n}` : "";
+  document.querySelectorAll('.filtrosN2').forEach(x=> x.textContent = n ? ` · ${n}` : "");
   document.getElementById('btnSheetVer').textContent = `Ver ${plural(list.length, "título", "títulos")}`;
   renderContinuar();
 }

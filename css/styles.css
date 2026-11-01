@@ -922,3 +922,67 @@ body.sem-titulos .grid, body.sem-titulos #resultsBar{ display:none !important; }
 .tabs.mais-dir.mais-esq{ -webkit-mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent); mask-image:linear-gradient(to right,transparent,#000 28px,#000 calc(100% - 28px),transparent); }
 
 body.filtros-open .chips-status{ display:none; }
+
+/* ===== 01/11: botões em três níveis, chip neutro, letreiro e aba Novidades ===== */
+/* primário: âmbar cheio, só o "+ Adicionar" da pergunta (e as ações que criam algo) */
+/* secundário: neutro com borda clara */
+.b2, .fbtn-m, .dc-vou{ display:inline-flex; align-items:center; justify-content:center; gap:6px; background:var(--surface-2); color:var(--text); border:1px solid #747889; border-radius:12px; font:600 13.5px 'Archivo',sans-serif; min-height:40px; padding:0 14px; cursor:pointer; white-space:nowrap; }
+.b2:hover, .fbtn-m:hover{ border-color:#fff; }
+.fbtn-m{ flex:none; }
+.dc-vou{ position:absolute; top:6px; right:6px; min-height:34px; padding:0 10px; font-size:12px; }
+/* terciário: só texto sublinhado */
+.b3, .linkbtn{ background:none; border:0; color:var(--text-dim); font:500 13.5px 'Archivo',sans-serif; text-decoration:underline; text-underline-offset:3px; text-decoration-color:#55586a; cursor:pointer; padding:0 8px; min-height:36px; }
+.b3:hover, .linkbtn:hover{ color:var(--text); }
+.nf-toggle, .nf-bt .b3{ min-height:44px; }
+.nf-toggle{ text-decoration:none; font-size:15px; min-width:40px; padding:0 6px; }
+.feed-item a{ color:var(--text); text-decoration:underline; text-underline-offset:3px; }
+/* chip selecionado neutro: cinza com borda branca (não depende só de cor) */
+.pill.active, .chip.on, .dc-en button.on{ background:var(--surface-2); color:#fff; border-color:#fff; font-weight:600; }
+.dc-en button.on .ei{ color:#fff; }
+.pill:hover{ border-color:#9a9ba6; }
+.rxn.on{ border-color:#fff; background:var(--surface-2); }
+/* Mais filtros: celular dentro da busca, computador por último na fileira */
+.fbtn-pc{ display:none !important; }
+@media (min-width:641px){
+  .search-wrap .fbtn-m{ display:none !important; }
+  .fbtn-pc{ display:inline-flex !important; }
+  body.filtros-open .fbtn-pc{ display:none !important; }
+  #btnAdd{ display:none; }
+}
+/* letreiro de novidades */
+.nov-faixa{ padding:0 !important; overflow:visible; }
+.nov-faixa.aberta{ padding:0 !important; }
+.nf-bar{ display:flex; align-items:stretch; min-height:48px; }
+.nf-vp{ flex:1; min-width:0; overflow:hidden; display:flex; align-items:center; cursor:pointer; border-radius:16px 0 0 16px; -webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent); mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 14px),transparent); }
+.nf-vp:focus-visible{ outline:2px solid #fff; outline-offset:-2px; }
+.nf-trk{ display:inline-flex; width:max-content; padding-left:14px; font-size:13.5px; white-space:nowrap; animation:nfmq var(--dur,30s) linear infinite; }
+.nf-g{ display:inline-flex; gap:34px; padding-right:34px; }
+.nf-g b{ color:#fff; }
+@keyframes nfmq{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+.nov-faixa:hover .nf-trk, .nov-faixa.pausada .nf-trk, .nov-faixa:focus-within .nf-trk{ animation-play-state:paused; }
+@media (prefers-reduced-motion:reduce){ .nf-trk{ animation:none; } .nf-g.dup{ display:none; } .nf-vp{ overflow-x:auto; } }
+.nf-fx{ flex:none; display:flex; align-items:center; gap:6px; padding:0 4px 0 12px; border-left:1px solid var(--line); font-size:13.5px; }
+.nf-fx b{ font-weight:600; }
+.nf-n{ background:var(--surface-2) !important; color:#fff !important; border:1px solid #747889; margin:0 !important; min-width:24px; }
+.nf-open{ padding:4px 12px 12px; border-top:1px solid var(--line); }
+.nf-open .nf-cards{ align-items:flex-start; padding:10px 0 6px; }
+.nf-bt{ display:flex; justify-content:space-between; align-items:center; margin-top:4px; }
+.nc{ align-items:flex-start; }
+/* aba Novidades: blocos maiores, sem altura esticada */
+body[data-tab="novidades"] .tab-cat, body[data-tab="novidades"] .tab-lists, body[data-tab="novidades"] .tab-people, body[data-tab="novidades"] .tab-amigos{ display:none !important; }
+body:not([data-tab="novidades"]) .tab-novidades{ display:none !important; }
+body[data-tab="novidades"] #btnAdd{ display:none; }
+.tab-novidades .feed-item{ gap:14px; padding:14px; margin-bottom:10px; border:1px solid var(--line); border-radius:16px; background:var(--surface); align-items:flex-start; }
+.tab-novidades .feed-item:first-of-type{ border-top:1px solid var(--line); }
+.tab-novidades .feed-item .fp{ width:78px; height:117px; border-radius:10px; }
+.tab-novidades .feed-item.novo{ background:#2b2218; }
+.tab-novidades .nv-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:10px; align-items:start; margin-bottom:6px; }
+.tab-novidades .nc{ width:auto; }
+.nv-dia{ font:700 11px 'Archivo',sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); margin:16px 0 8px; }
+@media (min-width:900px){ .tab-novidades #amigosFeed{ display:grid; grid-template-columns:repeat(auto-fill,minmax(380px,1fr)); gap:10px; align-items:start; } .tab-novidades #amigosFeed .nv-dia, .tab-novidades #amigosFeed .nv-grid, .tab-novidades #amigosFeed .empty-sm{ grid-column:1 / -1; } .tab-novidades .feed-item{ margin-bottom:0; } }
+/* links dos cartões viram terciários; Adicionar só na pergunta (chip da home) */
+.dc-ft{ color:var(--text-dim); }
+.dc-link{ color:var(--text); text-decoration:underline; text-underline-offset:3px; text-decoration-color:#55586a; }
+.dc-link.o{ color:var(--text-dim); }
+#btnAdd{ display:none !important; }
+@media (max-width:640px){ .topbar .tabs button{ padding-left:9px; padding-right:9px; } }

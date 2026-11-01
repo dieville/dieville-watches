@@ -6,7 +6,7 @@
 <title>Dieville Watches</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20261031e">
+<link rel="stylesheet" href="css/styles.css?v=20261101a">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#14151a">
 <link rel="apple-touch-icon" href="img/icon-180.png">
@@ -95,6 +95,7 @@
     <button class="on" data-tab="catalogo">Início</button>
     <button data-tab="listas">Listas</button>
     <button data-tab="amigos" id="tabAmigos" style="display:none">Amigos <span class="tab-badge" id="amigosBadge" style="display:none"></span></button>
+    <button data-tab="novidades" id="tabNovidades">Novidades <span class="tab-badge" id="novBadge" style="display:none"></span></button>
     <button data-tab="pessoas" id="tabPessoas" style="display:none">Usuários <span class="tab-badge" id="pendBadge" style="display:none"></span></button>
   </nav>
   <div class="top-right">
@@ -166,6 +167,7 @@
     <button class="pill" data-status="Quero assistir">Quero ver</button>
     <button class="pill" data-status="Em Pausa">Em pausa</button>
     <button class="pill" data-status="Concluída">Concluídas</button>
+    <button type="button" class="fbtn-m fbtn-pc" id="btnFiltros2" aria-controls="filtroSheet">⚙︎ Mais filtros<span class="filtrosN2"></span></button>
   </div>
   <div class="sheet-head"><b>Mais filtros</b><button type="button" class="linkbtn" id="btnSheetLimpar">Limpar</button></div>
   <div class="frow f-tipo">
@@ -253,17 +255,18 @@
   </div>
 </section>
 
+<section class="people-page app-only tab-novidades">
+  <h2>Novidades</h2>
+  <p class="pc-sub">Episódios novos das suas séries e o que seus amigos começaram, terminaram e comentaram.</p>
+  <div class="chips-nov" id="novChips" role="tablist"></div>
+  <div id="novRetorno"></div>
+  <div id="amigosFeed"></div>
+</section>
+
 <section class="people-page app-only tab-amigos">
   <h2>Amigos</h2>
-  <p>O que seus amigos andam vendo e indicando.</p>
+  <p>Quem são seus amigos, pedidos e convites.</p>
   <div id="amigosPedidos"></div>
-  <div class="pcard-box">
-    <h3>Novidades dos amigos</h3>
-    <p class="pc-sub">O que seus amigos começaram, terminaram e comentaram.</p>
-    <div class="chips-nov" id="novChips" role="tablist"></div>
-    <div id="novRetorno"></div>
-    <div id="amigosFeed"></div>
-  </div>
   <details class="pcard-box am-add" id="amAdd">
     <summary><h3>Adicionar amigos</h3><small>Seu link de amizade e convites</small></summary>
     <div class="am-opcoes">
@@ -457,18 +460,18 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="js/config.js?v=20261031e"></script>
-<script src="js/data.js?v=20261031e"></script>
-<script src="js/app.js?v=20261031e"></script>
-<script src="js/ui.js?v=20261031e"></script>
-<script src="js/usuarios.js?v=20261031e"></script>
-<script src="js/feedback.js?v=20261031e"></script>
-<script src="js/comunidade.js?v=20261031e"></script>
-<script src="js/ficha.js?v=20261031e"></script>
-<script src="js/amizades.js?v=20261031e"></script>
-<script src="js/novidades.js?v=20261031e"></script>
-<script src="js/onda2.js?v=20261031e"></script>
-<script src="js/onda3.js?v=20261031e"></script>
-<script src="js/home.js?v=20261031e"></script>
+<script src="js/config.js?v=20261101a"></script>
+<script src="js/data.js?v=20261101a"></script>
+<script src="js/app.js?v=20261101a"></script>
+<script src="js/ui.js?v=20261101a"></script>
+<script src="js/usuarios.js?v=20261101a"></script>
+<script src="js/feedback.js?v=20261101a"></script>
+<script src="js/comunidade.js?v=20261101a"></script>
+<script src="js/ficha.js?v=20261101a"></script>
+<script src="js/amizades.js?v=20261101a"></script>
+<script src="js/novidades.js?v=20261101a"></script>
+<script src="js/onda2.js?v=20261101a"></script>
+<script src="js/onda3.js?v=20261101a"></script>
+<script src="js/home.js?v=20261101a"></script>
 </body>
 </html>
