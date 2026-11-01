@@ -36,7 +36,7 @@ sheetBg.onclick = ()=> abrirFiltros(false);
 document.getElementById('btnSheetVer').onclick = ()=> abrirFiltros(false);
 document.getElementById('btnSheetLimpar').onclick = ()=>{ const c = filters.carga; resetFilters(); filters.carga = c; setEnergia(c); };
 document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && document.body.classList.contains('filtros-open')) abrirFiltros(false); });
-function nFiltros(){ return ["tipo","genero","onde"].filter(k=> filters[k] !== "all").length + (["Aguardando Nova Temporada","Abandonei"].includes(filters.status) ? 1 : 0); }
+function nFiltros(){ return ["genero","onde"].filter(k=> filters[k] !== "all").length + (["Aguardando Nova Temporada","Concluída","Abandonei"].includes(filters.status) ? 1 : 0); }
 
 /* ---------- continue de onde parou ---------- */
 function renderContinuar(){

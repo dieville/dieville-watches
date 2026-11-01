@@ -249,7 +249,7 @@ async function perguntarAdicionar(t){
   if(findDup(t.titulo, t.tmdbId ? { id: t.tmdbId, media: t.tmdbMedia } : null, null)) return;
   abrirDialogo({
     titulo: "Adicionar ao seu catálogo?",
-    corpo: `<div class="muted"><b style="color:var(--text)">${esc(t.titulo)}</b> entra no seu catálogo como <b style="color:var(--text)">Quero assistir</b>, com capa, gênero e carga já preenchidos.</div>`,
+    corpo: `<div class="muted"><b style="color:var(--text)">${esc(t.titulo)}</b> entra no seu catálogo como <b style="color:var(--text)">Quero ver</b>, com capa, gênero e carga já preenchidos.</div>`,
     botoes: [
       { texto:"Só marcar" },
       { texto:"Adicionar", classe:"btn-primary", acao: async ()=>{

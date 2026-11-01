@@ -1025,3 +1025,8 @@ body[data-tab="novidades"] #btnAdd{ display:none; }
 .rp-alerta{color:#f5b942}
 @media (prefers-reduced-motion:no-preference){.cm-rx button{transition:border-color .15s}}
 span.cm-av{display:inline-grid;place-items:center;background:var(--surface,#262935);font-size:12px;font-weight:700}
+
+/* 01/11: números do topo = status (seleção neutra); chips = tipo */
+.stat.on{ border-color:#fff; background:var(--surface-2); }
+.stat.on .l{ color:var(--text); }
+.stat.on .n{ color:#fff; }

@@ -166,7 +166,7 @@ function applyFilters(){
   });
 }
 
-const STATUS_LABEL = { "Em Pausa":"Em pausa", "Aguardando Nova Temporada":"Aguardando temporada", "Concluída":"Concluído" };
+const STATUS_LABEL = { "Quero assistir":"Quero ver", "Em Pausa":"Em pausa", "Aguardando Nova Temporada":"Aguardando temporada", "Concluída":"Concluído" };
 const statusLabel = s => STATUS_LABEL[s] || s;
 const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
 
@@ -327,7 +327,7 @@ function setTipoFilter(v){
   document.getElementById('mTipo').value = v;
   render();
 }
-document.querySelectorAll('.pill[data-status]').forEach(btn=> btn.onclick = ()=> setStatusFilter(btn.dataset.status));
+document.querySelectorAll('.pill[data-status]').forEach(btn=> btn.onclick = ()=> setStatusFilter(filters.status === btn.dataset.status ? "all" : btn.dataset.status));
 document.querySelectorAll('.pill[data-tipo]').forEach(btn=> btn.onclick = ()=> setTipoFilter(btn.dataset.tipo));
 document.getElementById('mStatus').onchange = e=> setStatusFilter(e.target.value);
 document.getElementById('mTipo').onchange = e=> setTipoFilter(e.target.value);

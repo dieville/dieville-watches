@@ -261,7 +261,7 @@ document.addEventListener('click', async e=>{
     if(error){ showToast("Não consegui adicionar agora"); return; }
     if(!data?.ok){ showToast(data?.motivo === "ja_tem" ? "Esse título já está no seu catálogo" : "Esse título não está mais disponível"); return; }
     await loadShows(); render();
-    showToast("Adicionado ao seu catálogo em Quero assistir", { acao:"Desfazer", ms:6000, onAcao: async ()=>{
+    showToast("Adicionado ao seu catálogo em Quero ver", { acao:"Desfazer", ms:6000, onAcao: async ()=>{
       await sb.from('titles').delete().eq('id', data.id).eq('user_id', currentUser.id);
       shows = shows.filter(s=> s.id !== data.id); render(); showToast("Removido do seu catálogo");
     } });

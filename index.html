@@ -6,7 +6,7 @@
 <title>Dieville Watches</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=20261101b">
+<link rel="stylesheet" href="css/styles.css?v=20261101c">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#14151a">
 <link rel="apple-touch-icon" href="img/icon-180.png">
@@ -136,7 +136,7 @@
     <button class="stat" data-quick="all"><div class="n" id="statTotal">0</div><div class="l">no catálogo</div></button>
     <button class="stat" data-quick="Assistindo"><div class="n" id="statAssistindo">0</div><div class="l">assistindo</div></button>
     <button class="stat" data-quick="Em Pausa"><div class="n" id="statPausa">0</div><div class="l">em pausa</div></button>
-    <button class="stat" data-quick="Quero assistir"><div class="n" id="statFila">0</div><div class="l">na fila</div></button>
+    <button class="stat" data-quick="Quero assistir"><div class="n" id="statFila">0</div><div class="l">quero ver</div></button>
   </div>
 </header>
 
@@ -161,12 +161,11 @@
     <button class="s-clear" id="btnClearSearch" aria-label="Limpar busca">✕</button>
     <button type="button" class="fbtn-m" id="btnFiltros" aria-expanded="false" aria-controls="filtroSheet">⚙︎ Mais filtros<span id="filtrosN"></span></button>
   </div>
-  <div class="chips-status" id="chipsStatus" role="group" aria-label="Status">
-    <button class="pill active" data-status="all">Todos</button>
-    <button class="pill" data-status="Assistindo">Assistindo</button>
-    <button class="pill" data-status="Quero assistir">Quero ver</button>
-    <button class="pill" data-status="Em Pausa">Em pausa</button>
-    <button class="pill" data-status="Concluída">Concluídas</button>
+  <div class="chips-status" id="chipsStatus" role="group" aria-label="Tipo">
+    <button class="pill active" data-tipo="all">Todos</button>
+    <button class="pill" data-tipo="Série">Séries</button>
+    <button class="pill" data-tipo="Filme">Filmes</button>
+    <button class="pill" data-tipo="Anime">Animes</button>
     <button type="button" class="fbtn-m fbtn-pc" id="btnFiltros2" aria-controls="filtroSheet">⚙︎ Mais filtros<span class="filtrosN2"></span></button>
   </div>
   <div class="sheet-head"><b>Mais filtros</b><button type="button" class="linkbtn" id="btnSheetLimpar">Limpar</button></div>
@@ -182,8 +181,12 @@
     <div class="genre-chips" id="genreChips"></div>
   </div>
   <div class="frow f-status">
-    <div class="flabel">Outros status</div>
+    <div class="flabel">Status</div>
+    <button class="pill" data-status="Assistindo">Assistindo</button>
+    <button class="pill" data-status="Quero assistir">Quero ver</button>
+    <button class="pill" data-status="Em Pausa">Em pausa</button>
     <button class="pill" data-status="Aguardando Nova Temporada">Aguardando temporada</button>
+    <button class="pill" data-status="Concluída">Concluído</button>
     <button class="pill" data-status="Abandonei">Abandonei</button>
   </div>
   <div class="frow f-onde" id="rowOnde" style="display:none">
@@ -196,7 +199,7 @@
       <option value="all">Tipo: Todos</option><option value="Série">Série</option><option value="Anime">Anime</option><option value="Filme">Filme</option>
     </select>
     <select id="mStatus" aria-label="Status">
-      <option value="all">Status: Todos</option><option value="Assistindo">Assistindo</option><option value="Em Pausa">Em pausa</option><option value="Quero assistir">Quero assistir</option><option value="Aguardando Nova Temporada">Aguardando temporada</option><option value="Concluída">Concluído</option><option value="Abandonei">Abandonei</option>
+      <option value="all">Status: Todos</option><option value="Assistindo">Assistindo</option><option value="Em Pausa">Em pausa</option><option value="Quero assistir">Quero ver</option><option value="Aguardando Nova Temporada">Aguardando temporada</option><option value="Concluída">Concluído</option><option value="Abandonei">Abandonei</option>
     </select>
   </div>
   <div class="sheet-foot"><button type="button" class="btn btn-primary" id="btnSheetVer">Ver títulos</button></div>
@@ -373,7 +376,7 @@
       <div class="field">
         <label for="fStatus">Status</label>
         <select id="fStatus">
-          <option value="Quero assistir">Quero assistir</option>
+          <option value="Quero assistir">Quero ver</option>
           <option value="Assistindo">Assistindo</option>
           <option value="Em Pausa">Em pausa</option>
           <option value="Aguardando Nova Temporada" id="optAguardando">Aguardando temporada</option>
@@ -469,19 +472,19 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="js/config.js?v=20261101b"></script>
-<script src="js/data.js?v=20261101b"></script>
-<script src="js/app.js?v=20261101b"></script>
-<script src="js/ui.js?v=20261101b"></script>
-<script src="js/usuarios.js?v=20261101b"></script>
-<script src="js/feedback.js?v=20261101b"></script>
-<script src="js/comunidade.js?v=20261101b"></script>
-<script src="js/ficha.js?v=20261101b"></script>
-<script src="js/amizades.js?v=20261101b"></script>
-<script src="js/novidades.js?v=20261101b"></script>
-<script src="js/onda2.js?v=20261101b"></script>
-<script src="js/onda3.js?v=20261101b"></script>
-<script src="js/titulo-comunidade.js?v=20261101b"></script>
-<script src="js/home.js?v=20261101b"></script>
+<script src="js/config.js?v=20261101c"></script>
+<script src="js/data.js?v=20261101c"></script>
+<script src="js/app.js?v=20261101c"></script>
+<script src="js/ui.js?v=20261101c"></script>
+<script src="js/usuarios.js?v=20261101c"></script>
+<script src="js/feedback.js?v=20261101c"></script>
+<script src="js/comunidade.js?v=20261101c"></script>
+<script src="js/ficha.js?v=20261101c"></script>
+<script src="js/amizades.js?v=20261101c"></script>
+<script src="js/novidades.js?v=20261101c"></script>
+<script src="js/onda2.js?v=20261101c"></script>
+<script src="js/onda3.js?v=20261101c"></script>
+<script src="js/titulo-comunidade.js?v=20261101c"></script>
+<script src="js/home.js?v=20261101c"></script>
 </body>
 </html>

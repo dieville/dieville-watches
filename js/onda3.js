@@ -104,7 +104,7 @@ function motivo(s){
   if(s.status === "Assistindo") return "▶ Você está assistindo";
   if(s.status === "Em Pausa") return "⏯️ Estava em pausa, dá pra retomar";
   if(s.indicadoPor) return `💬 Indicação de ${s.indicadoPor}`;
-  return `⭐ ${s.nota ? Number(s.nota).toFixed(1) : "Na sua fila"}${(s.streaming || []).find(x=> x !== "Stremio") ? ` · ${s.streaming.find(x=> x !== "Stremio")}` : ""}`;
+  return `⭐ ${s.nota ? Number(s.nota).toFixed(1) : "Quero ver"}${(s.streaming || []).find(x=> x !== "Stremio") ? ` · ${s.streaming.find(x=> x !== "Stremio")}` : ""}`;
 }
 function escolhePraMim(){
   let tempo = lerLS2('dw-tempo', "hora"), energia = filters.carga === "all" ? "media" : filters.carga, vistos = new Set();
@@ -121,7 +121,7 @@ function escolhePraMim(){
         <div class="epm-t"><b>${esc(s.titulo)}</b><span class="why">${esc(motivo(s))}</span><small>${cargaEmoji(s.carga)}${s.duracao ? ` · ${esc(s.duracao.replace(/\s*·.*$/, ""))}` : ""} · ${esc(statusLabel(s.status).toLowerCase())}</small>
           <div class="epm-acts"><button type="button" class="btn btn-primary" data-epm-ver="${s.id}">Vou ver esse</button><button type="button" class="btn btn-ghost" data-epm-ficha="${s.id}">Ficha</button></div></div></div>`).join("")
         + `<button type="button" class="linkbtn epm-mais" data-epm-mais>🔄 Outras 3</button>`
-      : `<p class="muted">Nada na sua fila combina com ${nomeE} e ${TEMPO[tempo].txt.toLowerCase()}. Tente outro tempo ou outra energia.</p>`;
+      : `<p class="muted">Nada em Quero ver combina com ${nomeE} e ${TEMPO[tempo].txt.toLowerCase()}. Tente outro tempo ou outra energia.</p>`;
     corpo.querySelectorAll('[data-t]').forEach(b=>{ const on = b.dataset.t === tempo; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
     corpo.querySelectorAll('[data-en]').forEach(b=>{ const on = b.dataset.en === energia; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
   };

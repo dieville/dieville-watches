@@ -69,7 +69,7 @@ function cartaoNovo(s, largo){
   return `<div class="dc new ${largo ? "h" : ""}" ${s ? `data-dc-abrir="${s.id}" tabindex="0" role="button" aria-label="Algo novo: ${esc(s.titulo)}, ver ficha"` : ""}>
     <div class="dc-po" style="${s ? capaHome(s) : "background:var(--surface-2)"}"><span class="dc-ey">Algo novo</span></div>
     <div class="dc-col"><div class="dc-tx">${s ? `<div class="dc-tt">${esc(s.titulo)}</div><div class="dc-mt">${esc(meta)}</div>`
-      : `<div class="dc-tt">Nada na fila combina</div><div class="dc-mt">Tente outra energia ou veja todos.</div>`}
+      : `<div class="dc-tt">Nada em Quero ver combina</div><div class="dc-mt">Tente outra energia ou veja todos.</div>`}
       ${poucos ? "" : chipsEnergia()}</div>
     <div class="dc-ft"><button type="button" class="dc-link o" data-dc-outra ${titulosNovo().length > 1 ? "" : "disabled"}>↻ Outra</button><button type="button" class="dc-link" data-dc-todos="Quero assistir">Ver todos (${totalFila()})</button></div></div></div>`;
 }
