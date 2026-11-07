@@ -1052,6 +1052,10 @@ span.cm-av{display:inline-grid;place-items:center;background:var(--surface,#2629
 .inv-nota{ font-size:13px; margin:2px 0 6px; }
 .grp-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; padding:10px 12px; margin:8px 0; border:1px dashed var(--line); border-radius:12px; font-size:14px; }
 .inv-nota{ color:var(--text-dim); margin:6px 0 14px; }
+.inv-switch{ display:flex; gap:12px; align-items:flex-start; margin:4px 0 14px; padding:12px; border:1px solid var(--line, #2e2a3b); border-radius:12px; cursor:pointer; }
+.inv-switch input{ width:20px; height:20px; margin-top:2px; flex:none; accent-color:var(--amber, #f5a524); }
+.inv-switch-t b{ display:block; }
+.inv-switch-t small{ display:block; color:var(--text-dim); font-size:13px; margin-top:2px; }
 .invite-form label[for="invMsg"]{ display:block; margin-top:18px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-dim); }
 
 /* catálogo com poucos títulos: o caminho para adicionar nunca some (01/11/2026) */

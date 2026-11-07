@@ -101,7 +101,7 @@ function renderUsuarios(){
 
   const naPlataforma = usuarios.filter(u=> u.status === "aprovado").length;
   const usaram = usuarios.filter(u=> u.status === "aprovado" && u.visto_em && Date.now() - new Date(u.visto_em) < 30 * 864e5).length;
-  document.getElementById('usrResumo').textContent = `Só entra quem você aprovar. ${plural(naPlataforma, "pessoa", "pessoas")} na plataforma, ${usaram} ${usaram === 1 ? "usou" : "usaram"} nos últimos 30 dias.`;
+  document.getElementById('usrResumo').textContent = `Você decide quem entra. ${plural(naPlataforma, "pessoa", "pessoas")} na plataforma, ${usaram} ${usaram === 1 ? "usou" : "usaram"} nos últimos 30 dias.`;
 
   const porAtividade = (a,b)=> (a.papel === "dono" ? -1 : 0) - (b.papel === "dono" ? -1 : 0) || (new Date(b.visto_em || 0) - new Date(a.visto_em || 0));
   const filtrados = usuarios.filter(u=> filtroUsr === "todos" ? true
@@ -215,8 +215,8 @@ function textoConvite(url){
     : "Oi! Te convidei para o Dieville Watches, um app para guardar o que você quer assistir, e queria que você fosse um dos primeiros a usar.\n\nA ideia: parar de perder mais tempo escolhendo o que ver do que vendo. Ele funciona assim:";
   return abertura + "\n• você guarda séries, filmes e animes num lugar só\n• escolhe a energia do dia (cansado, normal ou com foco) e ele mostra só o que combina\n• o botão Escolhe pra mim sugere 3 opções em segundos\n• você vê o que os amigos estão assistindo e comenta sem levar spoiler\n\nSeu convite está aqui: " + url + "\nO acesso é por convite e o link vale por 7 dias.";
 }
-function textoConviteGrupo(url){
-  return "Oi, pessoal! Desenvolvi um app chamado Dieville Watches e queria que vocês fossem os primeiros a usar.\n\nA ideia: parar de perder mais tempo escolhendo o que ver do que vendo.\n• guarde séries, filmes e animes num lugar só\n• escolha a energia do dia e veja só o que combina\n• o botão Escolhe pra mim sugere 3 opções em segundos\n• veja o que os amigos assistem, sem spoiler\n\nPara entrar: " + url + "\nEntre com o Google e peça acesso. Eu libero por lá.";
+function textoConviteGrupo(url, liberar){
+  return "Oi, pessoal! Desenvolvi um app chamado Dieville Watches e queria que vocês fossem os primeiros a usar.\n\nA ideia é parar de perder tempo escolhendo o que assistir.\n• Você pode salvar séries, filmes e animes num só lugar;\n• Escolher e adicionar algo novo ou continuar o que estava assistindo;\n• Ver o que os amigos assistem e comentar, sem spoilers.\n\nPara entrar: " + url + "\n" + (liberar ? "Entre com o Google e já fica liberado." : "Entre com o Google e peça acesso. Eu libero por lá.") + "\n\nPS: É uma versão inicial, então agradeço todos os reports de bugs e melhorias.";
 }
 async function copiarMensagem(texto){
   try{ await navigator.clipboard.writeText(texto); showToast("Mensagem copiada"); }catch(e){ prompt("Copie a mensagem:", texto); }
@@ -241,9 +241,11 @@ function gruposHTML(){
     const dias = Math.ceil((new Date(c.expira_em) - Date.now()) / 864e5);
     const cheio = c.limite && (c.usos || 0) >= c.limite;
     const ativo = !c.cancelado && dias > 0 && !cheio;
-    const st = c.cancelado ? `<span class="pill-s ps-off">DESATIVADO</span>` : dias <= 0 ? `<span class="pill-s ps-off">EXPIRADO</span>` : cheio ? `<span class="pill-s ps-off">LIMITE ATINGIDO</span>` : `<span class="pill-s ps-wait">GRUPO</span>`;
+    const lib = !!c.liberar_na_hora;
+    const st = c.cancelado ? `<span class="pill-s ps-off">DESATIVADO</span>` : dias <= 0 ? `<span class="pill-s ps-off">EXPIRADO</span>` : cheio ? `<span class="pill-s ps-off">LIMITE ATINGIDO</span>` : lib ? `<span class="pill-s ps-ok">LIBERA NA HORA</span>` : `<span class="pill-s ps-wait">APROVA UMA A UMA</span>`;
+    const cont = lib ? `${c.usos || 0} de ${c.limite} entraram${r.esperando ? ` · ${r.esperando} esperando` : ""}` : `${r.pediram} pediram · ${r.aprovados} aprovados · ${r.esperando} esperando${c.limite ? ` · limite ${c.limite}` : ""}`;
     const quando = c.cancelado ? "" : dias > 0 ? ` · expira em ${plural(dias, "dia", "dias")}` : "";
-    return `<div class="pcard"><b>${esc(c.nome)}</b>${st}<div class="meta2">${r.pediram} pediram · ${r.aprovados} aprovados · ${r.esperando} esperando${c.limite ? ` · limite ${c.limite}` : ""}${quando}</div>${ativo ? `<div class="acts"><button class="btn btn-ghost" data-gcopy="${c.id}">📋 Copiar mensagem</button><button class="btn btn-ghost" data-gwa="${c.id}">💬 WhatsApp</button><button class="btn btn-no" data-cancel="${c.id}">Desativar link</button></div>` : ""}${r.esperando ? `<div class="acts"><button class="btn btn-ghost" data-aprovar-grupo="${c.id}">Aprovar os ${r.esperando}</button></div>` : ""}</div>`;
+    return `<div class="pcard"><b>${esc(c.nome)}</b>${st}<div class="meta2">${cont}${quando}</div>${ativo ? `<div class="acts"><button class="btn btn-ghost" data-gcopy="${c.id}">📋 Copiar mensagem</button><button class="btn btn-ghost" data-gwa="${c.id}">💬 WhatsApp</button>${lib ? `<button class="btn btn-ghost" data-gmanual="${c.id}">Voltar a aprovar uma a uma</button>` : ""}<button class="btn btn-no" data-cancel="${c.id}">Desativar link</button></div>` : ""}${r.esperando ? `<div class="acts"><button class="btn btn-ghost" data-aprovar-grupo="${c.id}">Aprovar os ${r.esperando}</button></div>` : ""}</div>`;
   }).join("");
 }
 function renderConvites(){
@@ -262,11 +264,19 @@ function renderConvites(){
 }
 document.getElementById('invGrupos').addEventListener('click', e=>{
   const ap = e.target.closest('[data-aprovar-grupo]'); if(ap) return aprovarGrupo(ap.dataset.aprovarGrupo);
-  const gc = e.target.closest('[data-gcopy]'); if(gc){ const c = convites.find(x=> x.id === gc.dataset.gcopy); return copiarMensagem(textoConviteGrupo(linkConvite(c))); }
-  const gw = e.target.closest('[data-gwa]'); if(gw){ const c = convites.find(x=> x.id === gw.dataset.gwa); return abrirWhatsApp(textoConviteGrupo(linkConvite(c))); }
+  const gc = e.target.closest('[data-gcopy]'); if(gc){ const c = convites.find(x=> x.id === gc.dataset.gcopy); return copiarMensagem(textoConviteGrupo(linkConvite(c), c.liberar_na_hora)); }
+  const gw = e.target.closest('[data-gwa]'); if(gw){ const c = convites.find(x=> x.id === gw.dataset.gwa); return abrirWhatsApp(textoConviteGrupo(linkConvite(c), c.liberar_na_hora)); }
+  const gm = e.target.closest('[data-gmanual]'); if(gm) return voltarAprovarUmaAUma(gm.dataset.gmanual);
   const cc = e.target.closest('[data-cancel]');
   if(cc) cancelarConvite(cc.dataset.cancel, true);
 });
+/* freio de emergência: o link deixa de liberar na hora; quem abrir depois vira pedido */
+async function voltarAprovarUmaAUma(id){
+  if(!(await confirmar({ titulo:"Voltar a aprovar uma a uma?", texto:"Quem já entrou continua com acesso. Quem abrir este link daqui para frente vira pedido e espera você.", botao:"Voltar a aprovar" }))) return;
+  const { error } = await sb.from('invites').update({ liberar_na_hora:false }).eq('id', id);
+  if(error){ showToast("Não consegui mudar o link"); return; }
+  showToast("Agora você aprova uma a uma"); loadPeople();
+}
 async function cancelarConvite(id, grupo){
   if(!(await confirmar({ titulo: grupo ? "Desativar este link de grupo?" : "Cancelar este convite?", texto: grupo ? "O link para de funcionar. Quem já pediu continua esperando por você." : "O link para de funcionar.", botao: grupo ? "Desativar" : "Cancelar convite", perigo:true }))) return;
   const { error } = await sb.from('invites').update({ cancelado:true }).eq('id', id);
@@ -298,6 +308,19 @@ document.querySelector('.inv-modo').addEventListener('click', e=>{
   document.getElementById('btnCreateInvite').textContent = g ? "Gerar link do grupo" : "Gerar convite";
   document.getElementById('invResult').innerHTML = "";
 });
+/* "Liberar na hora": exige limite (até 100) e validade de no máximo 30 dias */
+function ajustarLiberar(){
+  const on = document.getElementById('invLiberar').checked;
+  const lim = document.getElementById('invLimite'), dias = document.getElementById('invDias');
+  lim.querySelector('option[value=""]').disabled = on;
+  dias.querySelector('option[value="90"]').disabled = on;
+  if(on){ if(!lim.value) lim.value = "25"; if(+dias.value > 30) dias.value = "30"; }
+  document.querySelector('label[for="invLimite"]').textContent = on ? "Limite de pessoas" : "Limite de pedidos (opcional)";
+  document.getElementById('invNota').textContent = on
+    ? "Quem entrar por este link já fica com acesso e vira seu amigo. Vale no máximo 30 dias e até 100 pessoas. Você pode voltar a aprovar uma a uma quando quiser."
+    : "Quem entrar por este link pede acesso e só entra quando você aprovar. Pedidos sem resposta expiram em 15 dias.";
+}
+document.getElementById('invLiberar').addEventListener('change', ajustarLiberar);
 document.getElementById('btnCreateInvite').onclick = async ()=>{
   const grupo = modoConvite === "grupo";
   const nome = document.getElementById('invName').value.trim();
@@ -308,12 +331,17 @@ document.getElementById('btnCreateInvite').onclick = async ()=>{
     linha.grupo = true;
     linha.expira_em = new Date(Date.now() + (+document.getElementById('invDias').value || 30) * 864e5).toISOString();
     linha.limite = +document.getElementById('invLimite').value || null;
+    if(document.getElementById('invLiberar').checked){
+      if(!linha.limite){ showToast("Escolha um limite de pessoas"); return; }
+      linha.liberar_na_hora = true;
+    }
   }
   const { data, error } = await sb.from('invites').insert(linha).select().single();
   if(error){ showToast("Não consegui criar o convite: " + error.message); return; }
   const url = linkConvite(data);
-  mostrarMensagemConvite(document.getElementById('invResult'), url, grupo ? textoConviteGrupo : null);
+  mostrarMensagemConvite(document.getElementById('invResult'), url, grupo ? (u=> textoConviteGrupo(u, !!linha.liberar_na_hora)) : null);
   document.getElementById('invName').value = "";
+  document.getElementById('invLiberar').checked = false; ajustarLiberar();   // cada link novo nasce desligado
   loadPeople();
 };
 
