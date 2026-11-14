@@ -207,16 +207,22 @@ async function copiarOuCompartilhar(url, titulo){
   if(navigator.share){ try{ await navigator.share({ title: titulo, url }); return; }catch(e){ if(e.name === 'AbortError') return; } }
   try{ await navigator.clipboard.writeText(url); showToast("Link do convite copiado"); }catch(e){ prompt("Copie o link do convite:", url); }
 }
-/* mensagem de convite pronta (dono fala como criador; membro convida em nome próprio) */
+/* mensagens de convite (revisadas com UX copy em 08/11/2026): sem gênero, dizem como entrar e citam a lista quando o link leva uma */
+const ITENS_CONVITE = "\n• guarda séries, filmes e animes num lugar só\n• diz como está a energia do dia e vê só o que combina\n• toca em Escolhe pra mim e recebe 3 sugestões\n• vê o que os amigos estão assistindo e comenta sem spoiler";
+const FECHO_CONVITE = "\n\nÉ uma versão inicial. Achou um erro ou teve uma ideia? Toque em 💬 Feedback no app.";
+const temListaNoLink = url => /[?&]lista=/.test(url);
 function textoConvite(url){
   const dono = !perfisAtivos || profile?.papel === "dono";
-  const abertura = dono
-    ? "Oi! Desenvolvi um app chamado Dieville Watches e queria que você fosse um dos primeiros a usar.\n\nA ideia: nos fins de semana eu perdia mais tempo escolhendo o que ver do que vendo. Então ele funciona assim:"
-    : "Oi! Te convidei para o Dieville Watches, um app para guardar o que você quer assistir, e queria que você fosse um dos primeiros a usar.\n\nA ideia: parar de perder mais tempo escolhendo o que ver do que vendo. Ele funciona assim:";
-  return abertura + "\n• você guarda séries, filmes e animes num lugar só\n• escolhe a energia do dia (cansado, normal ou com foco) e ele mostra só o que combina\n• o botão Escolhe pra mim sugere 3 opções em segundos\n• você vê o que os amigos estão assistindo e comenta sem levar spoiler\n\nSeu convite está aqui: " + url + "\nO acesso é por convite e o link vale por 7 dias.";
+  const lista = temListaNoLink(url) ? "\nJá deixei uma lista separada para você começar." : "";
+  if(dono) return "Oi! Criei um app chamado Dieville Watches e queria que você estivesse entre as primeiras pessoas a usar.\n\nNos fins de semana eu perdia mais tempo escolhendo o que ver do que vendo. Com ele você:" + ITENS_CONVITE
+    + "\n\nSeu convite: " + url + "\nÉ só entrar com o Google, o acesso já fica liberado. O link é só seu e vale por 7 dias." + lista + FECHO_CONVITE;
+  return "Oi! Estou usando o Dieville Watches para guardar o que quero assistir e queria te mostrar.\n\nCom ele você:" + ITENS_CONVITE
+    + "\n\nSeu convite: " + url + "\nEntre com o Google e peça acesso. O Dieville, que criou o app, libera por lá. O link é só seu e vale por 7 dias." + lista;
 }
 function textoConviteGrupo(url, liberar){
-  return "Oi, pessoal! Desenvolvi um app chamado Dieville Watches e queria que vocês fossem os primeiros a usar.\n\nA ideia é parar de perder tempo escolhendo o que assistir.\n• Você pode salvar séries, filmes e animes num só lugar;\n• Escolher e adicionar algo novo ou continuar o que estava assistindo;\n• Ver o que os amigos assistem e comentar, sem spoilers.\n\nPara entrar: " + url + "\n" + (liberar ? "Entre com o Google e já fica liberado." : "Entre com o Google e peça acesso. Eu libero por lá.") + "\n\nPS: É uma versão inicial, então agradeço todos os reports de bugs e melhorias.";
+  return "Oi, pessoal! Criei um app chamado Dieville Watches e queria que vocês estivessem entre os primeiros a usar.\n\nA ideia é perder menos tempo escolhendo o que assistir. Com ele vocês:\n• guardam séries, filmes e animes num lugar só\n• dizem como está a energia do dia e veem só o que combina\n• veem o que os amigos estão assistindo e comentam sem spoiler\n\nPara entrar: " + url + "\n"
+    + (liberar ? "É só entrar com o Google, o acesso já fica liberado." : "Entre com o Google e peça acesso. Eu libero por lá e vocês já podem usar.")
+    + (temListaNoLink(url) ? "\nJá deixei uma lista separada para vocês começarem." : "") + FECHO_CONVITE;
 }
 async function copiarMensagem(texto){
   try{ await navigator.clipboard.writeText(texto); showToast("Mensagem copiada"); }catch(e){ prompt("Copie a mensagem:", texto); }

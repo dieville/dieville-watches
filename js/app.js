@@ -1580,8 +1580,8 @@ async function renderPublicCta(l, n, donoNome){
     if(c && c.valido){
       box.className = "pub-cta inv";
       box.innerHTML = c.grupo
-        ? `<b class="h">Você foi convidado para o Dieville Watches 🎟️</b><p>Crie sua watchlist${n ? ` e comece com ${plural(n, "título", "títulos")}` : ""}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite: ${esc(c.nome)}. Entre com o Google${c.liberar ? " e já fica liberado" : " e peça acesso"}.</small>`
-        : `<b class="h">${esc(c.nome)}, você foi convidado 🎟️</b><p>Crie sua watchlist e comece com ${n ? `estes ${plural(n, "título", "títulos")}` : "o pé direito"}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite de uso único.</small>`;
+        ? `<b class="h">Seu convite para o Dieville Watches 🎟️</b><p>Crie sua watchlist${n ? ` e comece com ${plural(n, "título", "títulos")}` : ""}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite: ${esc(c.nome)}. Entre com o Google${c.liberar ? " e já fica liberado" : " e peça acesso"}.</small>`
+        : `<b class="h">${esc(c.nome)}, seu convite chegou 🎟️</b><p>Crie sua watchlist e comece com ${n ? `estes ${plural(n, "título", "títulos")}` : "o pé direito"}. Organize tudo pela sua energia do dia.</p><div class="row-btns">${gbtn}</div><small>Convite de uso único.</small>`;
       box.style.display = "block"; return;
     }
   }
@@ -1599,7 +1599,7 @@ async function loadInviteLanding(){
   const box = document.getElementById('pubCta');
   const gbtn = `<button class="btn btn-google" data-google>${document.querySelector('[data-google]').innerHTML}</button>`;
   if(c && c.valido){
-    document.getElementById('pubTitle').textContent = c.grupo ? "Você foi convidado para o Dieville Watches 🎟️" : `${c.nome}, você foi convidado 🎟️`;
+    document.getElementById('pubTitle').textContent = c.grupo ? "Seu convite para o Dieville Watches 🎟️" : `${c.nome}, seu convite chegou 🎟️`;
     document.getElementById('pubSub').textContent = "Organize séries, filmes e animes pela sua energia do dia.";
     box.className = "pub-cta inv"; box.innerHTML = `<div class="row-btns">${gbtn}</div><small>${c.grupo ? `Convite: ${esc(c.nome)}. Entre com o Google${c.liberar ? " e já fica liberado" : " e peça acesso"}.` : "Convite de uso único."}</small>`;
   }else{
